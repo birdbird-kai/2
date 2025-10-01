@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>鸟巢</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@font-face { font-family: 'Zpix'; src: url('zpix.ttf') format('truetype'); }
+html, body { margin:0; padding:0; width:100%; height:100%; background:black; font-family:'Zpix',monospace; cursor:url('images/pointer2.png') 4 4, pointer; overflow:hidden; }
+
+/* 左右边框 */
+#left-border, #right-border { position:fixed; top:0; bottom:0; width:64px; background-repeat:repeat-y; background-size:64px auto; z-index:5; }
+#left-border { left:0; background-image:url('images/side-border-left.png'); }
+#right-border { right:0; background-image:url('images/side-border-right.png'); }
+
+/* 语言切换按钮 */
+#language-toggle {
+  position: fixed;
+  top: 20px;
+  right: 84px;
+  width: 50px;
+  height: 50px;
+  background: url('images/language-zh.png') no-repeat center center;
+  background-size: contain;
+  cursor: url('images/pointer.png') 2 2, pointer;
+  z-index: 15;
+  image-rendering: pixelated;
+  transition: transform 0.2s, filter 0.2s;
+}
+#language-toggle:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 6px white);
+}
+#language-toggle.en { background-image: url('images/language-en.png'); }
+
+/* 中心GIF */
+#butterfly { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); max-width:calc(100vw - 128px); max-height:100vh; image-rendering:pixelated; z-index:2; display:none; }
+.center-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  padding: 0 64px;
+  box-sizing: content-box;
+  background-image: url('images/border2-left.png'), url('images/border2-right.png');
+  background-repeat: repeat-y, repeat-y;              
+  background-position: left center, right center;   
+  background-size: 64px , 64px ;  }
+#center-gif {  display: block;  max-width: calc(100vw - 128px - 90px);  max-height: 100vh;  image-rendering: pixelated;  transform: translateZ(0); }
+
+/* 菜单公共样式 */
+.menu { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10; background:black; border:4px solid white; text-align:center; width:300px; color:white; box-shadow:0 0 20px rgba(255,255,255,0.6); max-height:60vh; overflow-y:auto; padding:15px 15px 10px; display:none; }
+.menu.active { display:block; }
+.menu::-webkit-scrollbar { width:5px; }
+.menu::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius:4px; }
+.menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius:4px; }
+.menu::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.6); }
+.menu h1 { font-size:16px; margin-bottom:20px; }
+.menu p { font-size:14px; margin:10px 0; line-height:1.4; }
+
+/* 修复：统一中英文头像样式（避免英文头像变大） */
+.menu img#avatar,
+.menu img#avatar-en {
+  width:120px;
+  border:3px solid white;
+  border-radius:2px;
+  margin:15px 0;
+  image-rendering:pixelated;
+  cursor:url('images/pointer.png') 2 2, pointer;
+  transition: transform 0.3s, filter 0.3s;
+}
+.menu img#avatar:hover,
+.menu img#avatar-en:hover { transform: scale(1.2) rotate(2deg); filter: drop-shadow(0 0 6px #fffacd); }
+
+.menu-gif { width:90%; max-width:280px; margin:15px 0; image-rendering:pixelated; }
+
+/* 按钮 */
+.btn { display:block; margin:10px auto; padding:10px; border:2px solid white; background:black; color:white; font-size:14px; text-decoration:none; transition:0.2s; cursor:url('images/pointer.png') 2 2, pointer; }
+.btn:hover { background:white; color:black; box-shadow:0 0 10px white; }
+.btn.fixed-bottom { position:sticky; bottom:0; margin-top:10px; background:black; }
+.btn.fixed-bottom:hover { background:white; color:black; box-shadow:0 0 10px white; }
+
+/* 左下右下按钮 */
+#menu-icon, #music-btn { position:fixed; bottom:20px; z-index:10; image-rendering:pixelated; cursor:url('images/pointer.png') 2 2, pointer; }
+#menu-icon { left:84px; width:60px; height:60px; background:url('images/menu-icon.png') no-repeat center center; background-size:contain; }
+#music-btn { right:84px; width:40px; height:40px; background:url('images/music-off.png') no-repeat center center; background-size:contain; }
+#music-btn.playing { background-image:url('images/music-on.png'); }
+#menu-icon:hover, #music-btn:hover { transform:scale(1.1); filter:drop-shadow(0 0 6px white); }
+
+/* 粒子气泡 */
+.particle { position:absolute; width:16px; height:16px; background:url('images/star.png') no-repeat center center; background-size:contain; image-rendering:pixelated; pointer-events:none; z-index:9999; animation:particle-fade 600ms forwards; }
+@keyframes particle-fade { from {opacity:1; transform:scale(1);} to {opacity:0; transform:scale(0.5);} }
+.bubble { position:absolute; color:#fffacd; font-size:14px; font-family:'Zpix',monospace; pointer-events:none; animation:bubble-float 1s forwards; text-shadow:0 0 4px black; z-index:9999; }
+@keyframes bubble-float { from {opacity:1; transform:translateY(0) scale(1);} to {opacity:0; transform:translateY(-40px) scale(1.2);} }
+
+/* 留言板 */
+#messageForm { display:flex; flex-direction:column; margin:10px 0; }
+#messageForm input, #messageForm textarea { margin:5px 0; padding:5px; font-size:14px; }
+#messageForm button { background:#333; color:#fff; border:none; padding:6px; cursor:pointer; }
+
+/* 修复：统一英文留言板样式选择（确保英文输入也受样式约束） */
+#messageForm-en { display:flex; flex-direction:column; margin:10px 0; }
+#messageForm-en input, #messageForm-en textarea { margin:5px 0; padding:5px; font-size:14px; }
+#messageForm-en button { background:#333; color:#fff; border:none; padding:6px; cursor:pointer; }
+
+#messageBoard { margin-top:10px; max-height:200px; overflow-y:auto; border:2px solid white; padding:8px; background:black; color:white; font-family:'Zpix',monospace; text-align:left; }
+#messageBoard-en { margin-top:10px; max-height:200px; overflow-y:auto; border:2px solid white; padding:8px; background:black; color:white; font-family:'Zpix',monospace; text-align:left; }
+
+.message { border-bottom:1px dashed rgba(255,255,255,0.3); padding:6px 0; color:#fffacd; }
+.message strong { color:#ffffff; }
+.delete-btn { display:none; background:crimson; color:#fff; border:none; margin-left:10px; padding:2px 6px; cursor:pointer; font-size:12px; border-radius:3px; }
+.admin .delete-btn { display:inline; }
+
+/* 移动端横屏提醒 */
+.mobile-warning { display:flex; justify-content:center; align-items:center; height:100vh; background:black; color:white; font-family:'Zpix',monospace; text-align:center; padding:20px; }
+.mobile-warning h2 { font-size:1.8rem; margin-bottom:1.5rem; }
+.mobile-warning p { font-size:1.2rem; margin-bottom:1.5rem; }
+.warning-gif img { image-rendering:pixelated; display:block; margin:0 auto; }
+#orientation-content { color:white; font-family:'Zpix',monospace; text-align:center; padding:20px; transform-origin:center center; transform:translateY(-5vh); }
+
+/* 遮罩层（保留样式以便 JS 动态创建的元素匹配） */
+#desktop-blocker { position:fixed; top:0; left:0; right:0; bottom:0; background:black; display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:9999; }
+#desktop-blocker img { width:200px; height:200px; margin-bottom:30px; image-rendering:pixelated; }
+#desktop-continue { padding:20px 40px; font-size:2rem; font-family:'Zpix',monospace; border:4px solid white; background:black; color:white; cursor:pointer; box-shadow:0 0 0 4px black, 0 0 0 8px white; transition: transform 0.15s;  cursor: url('images/pointer.png') 2 2, pointer; }
+#desktop-continue:hover { background:white; color:black; transform:scale(1.05); box-shadow:0 0 0 4px black,0 0 0 8px white,0 0 10px #fffacd;  cursor: url('images/pointer.png') 2 2, pointer; }
+
+/* 禁止文字与图片被选中、禁止拖拽 */
+body {
+  -webkit-user-select: none; 
+  -moz-user-select: none;    
+  -ms-user-select: none;    
+  user-select: none;         
+}
+img {
+  -webkit-user-drag: none;   
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  -webkit-user-drag: none; 
+}
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+</style>
+</head>
+<body>
+<div id="left-border"></div>
+<div id="right-border"></div>
+<div id="language-toggle"></div> <!-- 新增语言切换按钮 -->
+
+<div class="center-frame">
+  <img id="center-gif" src="images/bg.gif" alt="中心GIF">
+</div>
+<img id="butterfly" src="images/butterfly2.gif" alt="蝴蝶">
+
+<!-- 页面主体（初始隐藏，由 JS 决定何时显示） -->
+<div id="content" style="display:none;">
+  <div id="music-btn"></div>
+  <div id="menu-icon"></div>
+  <audio id="bgm" src="sounds/bgm.mp3" loop></audio>
+
+  <!-- 中文版本菜单 -->
+  <div class="menu active" id="homeMenu" data-lang="zh">
+    <h1 data-key="welcome">欢迎来到我的大脑皮层之下</h1>
+    <a href="#" class="btn" onclick="showMenu('aboutMenu')" data-key="aboutMe">关于我</a>
+    <a href="gallery.html" class="btn" id="to-gallery" data-key="portfolio">作品集</a>
+    <a href="#" class="btn" onclick="showMenu('contactMenu')" data-key="contactMe">联系我</a>
+  </div>
+
+  <div class="menu" id="aboutMenu" data-lang="zh">
+    <h1 data-key="aboutMe">关于我</h1>
+    <img id="avatar" src="images/avatar1.jpg" alt="我的头像">
+    <p data-key="intro1">我叫鸟鸟，也可以叫我小山己！</p>
+    <p data-key="intro2">这里收录了我从某个时期至今的作品！</p>
+    <p data-key="intro3">这是我第一次创建完全属于自己的个人网站！我自然是不懂任何有关代码类知识……所以所有有关编程的事几乎都是靠chatgpt完成的！ai真牛逼。。</p>
+    <p data-key="intro4">希望网站能激发各位的探索欲，也希望你们能喜欢！</p>
+    <p data-key="intro5">请到处逛逛吧！我很期待各种各样的反馈，我非常非常想继续更新这个网站和作品集！也许会增加更多小动画也说不定</p>
+    <p data-key="intro6">感谢阅读^//^</p>
+    <img class="menu-gif" src="images/read.gif" alt="小动画">
+    <a href="#" class="btn fixed-bottom" onclick="showMenu('homeMenu')" data-key="backToCortex">返回大脑皮层</a>
+  </div>
+
+  <div class="menu" id="contactMenu" data-lang="zh">
+    <h1 data-key="contactMe">联系我</h1>
+    <p>Email: xiaoshanji0144@gmail.com</p>
+    <p>Facebook: Birdbird Kai</p>
+    <hr>
+    <h2 data-key="messageBoard">留言板</h2>
+    <form id="messageForm">
+      <input type="text" id="nickname" data-placeholder-zh="你的昵称" data-placeholder-en="Your nickname" placeholder="你的昵称" required>
+      <textarea id="message" data-placeholder-zh="写点什么吧..." data-placeholder-en="Write something..." placeholder="写点什么吧..." required></textarea>
+      <button type="submit" data-key="send">发送</button>
+    </form>
+    <div id="messageBoard"></div>
+    <a href="#" class="btn fixed-bottom" onclick="showMenu('homeMenu')" data-key="backToCortex">返回大脑皮层</a>
+  </div>
+
+  <!-- 英文版本菜单 -->
+  <div class="menu" id="homeMenu-en" data-lang="en" style="display:none;">
+    <h1 data-key="welcome">Welcome to My Cerebral Cortex</h1>
+    <a href="#" class="btn" onclick="showMenu('aboutMenu-en')" data-key="aboutMe">About Me</a>
+    <a href="gallery.html" class="btn" id="to-gallery-en" data-key="portfolio">Portfolio</a>
+    <a href="#" class="btn" onclick="showMenu('contactMenu-en')" data-key="contactMe">Contact Me</a>
+  </div>
+
+  <div class="menu" id="aboutMenu-en" data-lang="en" style="display:none;">
+    <h1 data-key="aboutMe">About Me</h1>
+    <img id="avatar-en" src="images/avatar1.jpg" alt="My avatar">
+    <p data-key="intro1">My name is Koyama Kai, you can also call me Kai!</p>
+    <p data-key="intro2">This archive contains my works from a certain period to the present!</p>
+    <p data-key="intro3">This is my first time creating a completely personal website! I naturally don't know anything about coding... so almost all programming was done with ChatGPT! AI is amazing..</p>
+    <p data-key="intro4">I hope this website sparks your curiosity and enjoy it!</p>
+    <p data-key="intro5">Please look around! I'm looking forward to all kinds of feedback, I really want to continue updating this website and artworks! Maybe I'll add more little animations too</p>
+    <p data-key="intro6">Thanks for reading ^//^</p>
+    <img class="menu-gif" src="images/read.gif" alt="Small animation">
+    <a href="#" class="btn fixed-bottom" onclick="showMenu('homeMenu-en')" data-key="backToCortex">Back to Cortex</a>
+  </div>
+
+  <div class="menu" id="contactMenu-en" data-lang="en" style="display:none;">
+    <h1 data-key="contactMe">Contact Me</h1>
+    <p>Email: xiaoshanji0144@gmail.com</p>
+    <p>Facebook: Birdbird Kai</p>
+    <hr>
+    <h2 data-key="messageBoard">Message Board</h2>
+    <form id="messageForm-en">
+      <input type="text" id="nickname-en" data-placeholder-zh="你的昵称" data-placeholder-en="Your nickname" placeholder="Your nickname" required>
+      <textarea id="message-en" data-placeholder-zh="写点什么吧..." data-placeholder-en="Write something..." placeholder="Write something..." required></textarea>
+      <button type="submit" data-key="send">Send</button>
+    </form>
+    <div id="messageBoard-en"></div>
+    <a href="#" class="btn fixed-bottom" onclick="showMenu('homeMenu-en')" data-key="backToCortex">Back to Cortex</a>
+  </div>
+</div>
+
+<script>
+// ---------- 多语言系统 ----------
+let currentLang = localStorage.getItem('language') || 'zh';
+
+// 语言文本映射
+const translations = {
+  zh: {
+    welcome: "欢迎来到我的大脑皮层之下",
+    aboutMe: "关于我",
+    portfolio: "作品集",
+    contactMe: "联系我",
+    messageBoard: "留言板",
+    send: "发送",
+    backToCortex: "返回大脑皮层",
+    intro1: "我叫鸟鸟，也可以叫我小山己！",
+    intro2: "这里收录了我从某个时期至今的作品！",
+    intro3: "这是我第一次创建完全属于自己的个人网站！我自然是不懂任何有关代码类知识……所以所有有关编程的事几乎都是靠ai完成的！ai真牛逼。。",
+    intro4: "希望网站能激发各位的探索欲，也希望你们能喜欢！",
+    intro5: "ps：和黑发女孩闲聊时可以重复尝试几次哦！",
+    intro6: "请到处逛逛吧！我很期待各种各样的反馈，我非常非常想继续更新这个网站和作品集！也许会增加更多小动画也说不定",
+    intro7: "感谢阅读^//^"
+  },
+  en: {
+    welcome: "Welcome to My Cerebral Cortex",
+    aboutMe: "About Me",
+    portfolio: "My artwork",
+    contactMe: "Contact Me",
+    messageBoard: "Message Board",
+    send: "Send",
+    backToCortex: "Back to Cortex",
+    intro1: "I'm Koyama Kai! You can also jsut call me Kai.",
+    intro2: "This archive contains my works from a certain period to the present!",
+    intro3: "This is my first time creating a completely personal website! I naturally don't know anything about coding... so almost all programming was done with AI! AI is good with coding..",
+    intro4: "I hope this website sparks your curiosity and that you'll enjoy it!",
+    intro5: "ps: Feel free to keep trying to talk with the black-haired girl.",
+    intro5: "Please look around! I'm looking forward to all kinds of feedback, I really want to continue updating this website and portfolio! Maybe I'll add more little animations too",
+    intro6: "Thanks for reading ^//^"
+  }
+};
+
+// 切换语言函数
+function toggleLanguage() {
+  // 切换语言
+  currentLang = currentLang === "zh" ? "en" : "zh";
+  localStorage.setItem("language", currentLang);
+
+  // 更新界面文字
+  updateLanguage();
+
+  // 更新对话数据（重置到该语言的初始状态）
+  currentDialog = dialogTranslations[currentLang].noticeFirst;
+  currentBranch = chatBranchTranslations[currentLang];
+  currentLine = 0;
+  choosing = false;
+
+  // 清空对话框里的内容
+  dialogText.innerHTML = "";
+  if (typingTimer) clearTimeout(typingTimer);
+  isTyping = false;
+
+  // 重新开始第一句对话
+  showNextLine();
+}
+
+// 修复：更新界面语言（简化并稳定菜单显示逻辑） 
+function updateLanguage() {
+  // 更新语言按钮图标
+  const langToggle = document.getElementById('language-toggle');
+  langToggle.classList.toggle('en', currentLang === 'en');
+  
+  // 更新所有带 data-key 的元素
+  document.querySelectorAll('[data-key]').forEach(element => {
+    const key = element.getAttribute('data-key');
+    if (translations[currentLang] && translations[currentLang][key]) {
+      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        element.placeholder = translations[currentLang][key];
+      } else {
+        element.textContent = translations[currentLang][key];
+      }
+    }
+  });
+  
+  // 更新占位符文本（保留原有 data-placeholder-zh / -en 支持）
+  document.querySelectorAll('[data-placeholder-zh]').forEach(element => {
+    const placeholderKey = currentLang === 'zh' ? 'data-placeholder-zh' : 'data-placeholder-en';
+    if (element.getAttribute(placeholderKey)) element.placeholder = element.getAttribute(placeholderKey);
+  });
+  
+  // 切换菜单显示（只显示当前语言菜单；隐藏并移除非当前语言 active）
+  document.querySelectorAll('.menu').forEach(menu => {
+    const menuLang = menu.getAttribute('data-lang');
+    if (menuLang === currentLang) {
+      // 保持当前语言中处于 active 的显示状态
+      if (menu.classList.contains('active')) {
+        menu.style.display = 'block';
+      } else {
+        // 非 active 的当前语言菜单保持 hidden（由 showMenu 控制）
+        menu.style.display = 'none';
+      }
+    } else {
+      // 非当前语言菜单全部隐藏并移除 active，避免切换时混乱
+      menu.style.display = 'none';
+      menu.classList.remove('active');
+    }
+  });
+
+  // 如果当前语言没有 active 菜单，则默认打开首页菜单
+  const activeNow = document.querySelector(`.menu[data-lang="${currentLang}"].active`);
+  if (!activeNow) {
+    const homeMenuId = currentLang === 'zh' ? 'homeMenu' : 'homeMenu-en';
+    showMenu(homeMenuId);
+  }
+}
+
+// ---------- DOM 元素 & 音效 ----------
+const content = document.getElementById('content');
+const bgm = document.getElementById('bgm');
+const musicBtn = document.getElementById('music-btn');
+const menuIcon = document.getElementById('menu-icon');
+const avatar = document.getElementById('avatar');
+const avatarEn = document.getElementById('avatar-en');
+const butterfly = document.getElementById('butterfly');
+
+// 声音（使用 Audio 对象以便在需要时播放）
+const clickSound = new Audio('sounds/click.mp3');
+const startClickSound = new Audio('sounds/click2.mp3');
+const avatarSound = new Audio('sounds/avatar.ogg');
+
+// ---------- startSite：统一入口（关闭遮罩、显示内容、播放背景音乐） ----------
+function startSite() {
+  // 播放 start 音效（在用户交互触发下可以被浏览器允许播放）
+  try { startClickSound.currentTime = 0; startClickSound.play(); } catch(e){}
+  // 移除可能存在的遮罩或手机提示
+  document.getElementById('desktop-blocker')?.remove();
+  document.getElementById('orientation-warning')?.remove();
+  // 显示主内容并开始 BGM（如果浏览器允许）
+  content.style.display = 'block';
+  bgm.currentTime = 0;
+  bgm.play().then(()=>musicBtn.classList.add('playing')).catch(()=>{});
+  // 应用当前语言设置
+  updateLanguage();
+  localStorage.setItem('bgmPlaying','true');
+}
+
+/* ---------- 动态创建桌面遮罩（避免静态 DOM 导致闪现） ---------- */
+function createDesktopBlocker() {
+  if (document.getElementById('desktop-blocker')) return;
+
+  const blocker = document.createElement('div');
+  blocker.id = 'desktop-blocker';
+  blocker.style.position = 'fixed';
+  blocker.style.top = '0';
+  blocker.style.left = '0';
+  blocker.style.right = '0';
+  blocker.style.bottom = '0';
+  blocker.style.background = 'black';
+  blocker.style.display = 'flex';
+  blocker.style.justifyContent = 'center';
+  blocker.style.alignItems = 'center';
+  blocker.style.flexDirection = 'column';
+  blocker.style.zIndex = '9999';
+
+  blocker.innerHTML = `
+    <img src="images/1.gif" alt="加载中" width="200" height="200">
+    <button id="desktop-continue">▶ START</button>
+  `;
+  document.body.appendChild(blocker);
+
+  const btn = document.getElementById('desktop-continue');
+  btn.style.cursor = "url('images/pointer.png') 2 2, pointer";
+  btn.addEventListener('click', startSite);
+}
+
+// ---------- 恢复 BGM 状态（如果之前播放过） ----------
+function restoreBgmState() {
+  if (localStorage.getItem('bgmPlaying') === 'true') {
+    bgm.play().then(()=>musicBtn.classList.add('playing')).catch(()=>{});
+  }
+}
+
+// ---------- 菜单切换 ----------
+function showMenu(menuId) {
+  try { clickSound.currentTime = 0; clickSound.play(); } catch(e){}
+  document.querySelectorAll('.menu').forEach(m => {
+    m.classList.remove('active');
+    m.style.display = 'none';
+  });
+  const targetMenu = document.getElementById(menuId);
+  if (targetMenu) {
+    targetMenu.classList.add('active');
+    targetMenu.style.display = 'block';
+  }
+}
+
+// 菜单图标切换
+menuIcon.addEventListener('click', () => {
+  try { clickSound.currentTime = 0; clickSound.play(); } catch(e){}
+  const active = document.querySelector('.menu.active');
+  if (active) {
+    active.classList.remove('active');
+    active.style.display = 'none';
+  } else {
+    const homeMenu = currentLang === 'zh' ? 'homeMenu' : 'homeMenu-en';
+    showMenu(homeMenu);
+  }
+});
+
+// ---------- 音乐按钮逻辑 ----------
+musicBtn.addEventListener('click', () => {
+  try { clickSound.currentTime = 0; clickSound.play(); } catch(e){}
+  if (bgm.paused) {
+    bgm.play().then(()=>musicBtn.classList.add('playing')).catch(()=>{});
+    localStorage.setItem('bgmPlaying','true');
+  } else {
+    bgm.pause();
+    musicBtn.classList.remove('playing');
+    localStorage.setItem('bgmPlaying','false');
+  }
+});
+
+// ---------- 头像互动（带音效、粒子与气泡） ----------
+// 修复：确保英文头像也绑定相同交互（在 DOMContentLoaded 时会调用两次）
+function setupAvatarInteraction(avatarElement) {
+  if (!avatarElement) return;
+  
+  let isAlt = false;
+  avatarElement.addEventListener('click', (e) => {
+    try { avatarSound.currentTime = 0; avatarSound.play(); } catch(e){}
+    isAlt = !isAlt;
+    avatarElement.src = isAlt ? 'images/avatar2.jpg' : 'images/avatar1.jpg';
+    avatarElement.style.transform = 'scale(0.9)';
+    setTimeout(()=>{ avatarElement.style.transform='scale(1)'; }, 150);
+    for (let i = 0; i < 6; i++) setTimeout(()=> createParticle(e.clientX, e.clientY), i*50);
+    createBubble(e.clientX, e.clientY);
+  });
+}
+
+function createParticle(x,y){
+  const p=document.createElement('div'); p.className='particle';
+  p.style.left=(x-8+(Math.random()*40-20))+'px';
+  p.style.top=(y-8+(Math.random()*40-20))+'px';
+  document.body.appendChild(p); setTimeout(()=>p.remove(),600);
+}
+
+function createBubble(x,y){
+  const b=document.createElement('div'); b.className='bubble';
+  const texts= currentLang === 'zh' 
+    ? ["Hi!","owo","ヾ(≧▽≦*)o","✨","嘿嘿","(•̀ᴗ•́)و","♥"]
+    : ["Hi!","owo","ヾ(≧▽≦*)o","✨","Hehe","(•̀ᴗ•́)و","♥"];
+  b.textContent=texts[Math.floor(Math.random()*texts.length)];
+  b.style.left=(x-10)+'px'; b.style.top=(y-20)+'px';
+  document.body.appendChild(b); setTimeout(()=>b.remove(),1000);
+}
+
+// ---------- 蝴蝶定时显示 ----------
+function showButterfly() {
+  butterfly.style.display = 'block';
+  setTimeout(()=>{ butterfly.style.display='none'; scheduleNextButterfly(); }, 14100);
+}
+
+function scheduleNextButterfly() {
+  const min = 15000, max = 60000;
+  const delay = Math.random()*(max-min)+min;
+  setTimeout(showButterfly, delay);
+}
+
+// ---------- 留言板（localStorage 存储） ----------
+function setupMessageBoard(formId, boardId, nicknameId, messageId) {
+  const form = document.getElementById(formId);
+  const board = document.getElementById(boardId);
+  if (!form || !board) return;
+
+  let messages = JSON.parse(localStorage.getItem('messages') || '[]');
+  let isAdmin = false;
+
+  function renderMessages(){
+    board.innerHTML = '';
+    messages.forEach((msg,i)=>{
+      const div=document.createElement('div'); div.className='message';
+      div.innerHTML = `<span><strong>${msg.nickname}:</strong> ${msg.text}</span>`;
+      const delBtn=document.createElement('button'); delBtn.className='delete-btn'; 
+      delBtn.textContent = currentLang === 'zh' ? '删除' : 'Delete';
+      delBtn.onclick = ()=>{ messages.splice(i,1); localStorage.setItem('messages', JSON.stringify(messages)); renderMessages(); };
+      div.appendChild(delBtn);
+      board.appendChild(div);
+    });
+    board.classList.toggle('admin', isAdmin);
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const nicknameInput = document.getElementById(nicknameId);
+    const messageInput = document.getElementById(messageId);
+    const n = nicknameInput.value.trim();
+    const t = messageInput.value.trim();
+    if (n && t) { 
+      messages.push({nickname: n, text: t}); 
+      localStorage.setItem('messages', JSON.stringify(messages)); 
+      renderMessages(); 
+      form.reset(); 
+    }
+    if (messages.length > 100) messages.shift();
+  });
+
+  renderMessages();
+
+  // 为了让外部按键切换管理员模式能够影响到这个 board（跨函数），把 board 的 isAdmin 状态存到 DOM 上（字符串 'true'/'false'）
+  // 这样外部按键处理程序可以统一切换每个板块的 admin 展示状态（不破坏原有内部逻辑）
+  board.dataset.isAdmin = 'false';
+  // 监听自定义事件以便从外部切换 admin（其他板块也会触发同样事件）
+  board.addEventListener('toggleAdmin', (ev) => {
+    isAdmin = ev.detail === 'true';
+    board.dataset.isAdmin = String(isAdmin);
+    renderMessages();
+  });
+}
+
+// 监听 Ctrl+Shift+M 切换管理员模式（跨所有留言板）
+// 修复：原先 isAdmin 只在函数内，外部无法访问 —— 这里做统一控制并广播到每个 board
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'm') {
+    const pwd = prompt(currentLang === 'zh' ? "请输入管理员密码：" : "Please enter admin password:");
+    if (pwd === "bbkai0415") {
+      // 读取当前任意板块的状态，反转后广播（如果没有板块则直接提示）
+      const boards = document.querySelectorAll('#messageBoard, #messageBoard-en');
+      if (!boards || boards.length === 0) {
+        alert(currentLang === 'zh' ? "没有留言板可切换" : "No message boards to toggle");
+        return;
+      }
+      // 取第一个板块当前状态（data属性）
+      const firstState = boards[0].dataset.isAdmin === 'true';
+      const newState = !firstState;
+      boards.forEach(b => {
+        const ev = new CustomEvent('toggleAdmin', { detail: String(newState) });
+        b.dispatchEvent(ev);
+      });
+      // 更新 class 显示（以防）
+      boards.forEach(board => board.classList.toggle('admin', newState));
+      alert(currentLang === 'zh' ? "管理员模式已切换" : "Admin mode toggled");
+    } else {
+      alert(currentLang === 'zh' ? "密码错误！" : "Wrong password!");
+    }
+  }
+});
+
+// ---------- 电脑端遮罩逻辑（含从 gallery 返回判断） ----------
+// 稳健的 onInitialLoad：先读标志再移除，必要时移除已有遮罩
+function onInitialLoad() {
+  const fromGallery = localStorage.getItem('fromGallery');
+
+  if (fromGallery) {
+    // 已从 gallery 返回 —— 清标志并直接显示内容（同时移除可能残留的遮罩）
+    localStorage.removeItem('fromGallery');
+    document.getElementById('desktop-blocker')?.remove();
+    content.style.display = 'block';
+    restoreBgmState();
+    updateLanguage();
+    return;
+  }
+
+  // 非从 gallery 返回：如果尚未显示主内容则创建遮罩（createDesktopBlocker 自身有去重保护）
+  if (!document.getElementById('desktop-blocker') && content.style.display !== 'block') {
+    createDesktopBlocker();
+  }
+}
+
+// 在 DOMContentLoaded 时运行一次（首次打开）
+document.addEventListener('DOMContentLoaded', onInitialLoad);
+
+// 处理 bfcache / 浏览器后退恢复页面的情况（pageshow 在从缓存恢复时会触发）
+window.addEventListener('pageshow', (event) => {
+  // 无论 event.persisted 与否，都重新执行一次 onInitialLoad，保证状态同步
+  onInitialLoad();
+});
+
+// 处理 popstate（如果你有用 history API 的情况也能覆盖）
+window.addEventListener('popstate', onInitialLoad);
+
+// 确保去 gallery 的按钮先写入标志（你已有这段就不用改）
+document.querySelectorAll('#to-gallery, #to-gallery-en').forEach(btn => {
+  btn.addEventListener('click', () => {
+    localStorage.setItem('fromGallery', 'true');
+    // 不要在这里清掉标志 —— 让首页自己读并清除
+  });
+});
+
+// ---------- 移动端横屏提示（动态创建） ----------
+function showOrientationWarning() {
+  if (document.getElementById('orientation-warning')) return;
+  const warning = document.createElement('div');
+  warning.id = 'orientation-warning';
+  warning.innerHTML = `
+  <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:9999;">
+    <div id="orientation-content" style="text-align:center;max-width:90%;padding:10px;">
+      <h2 id="orientation-title" class="warning-title" style="font-size:1.8rem;line-height:1.3;">
+        ⚠ 建议横屏浏览<br>⚠ Landscape Recommended
+      </h2>
+      <p id="orientation-text" class="warning-text" style="font-size:1.2rem;line-height:1.5;margin:5px 0;margin-top: 5px">
+        竖屏可能显示不完整，横屏体验更佳！<br>
+        Portrait may cut content, landscape works better!
+      </p>
+      <div style="display:flex;flex-direction:column;align-items:center;margin:5px 0;">
+        <img src="images/bow.gif" alt="致歉 Sorry" class="warning-gif" style="width:120px;height:120px;" loading="lazy">
+        <p id="apology-text" class="warning-small-text" style="font-size:1.1rem;line-height:1.5;margin-top:8px;">
+          造成麻烦致歉！<br>Sorry for inconvenience!
+        </p>
+        <p id="tap-hint" class="warning-small-text" style="font-size:1rem; margin-top:0rem;">
+          点击任意空白处进入<br>Tap anywhere to continue
+        </p>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(warning);
+
+  // 点击整个遮罩继续（仅横屏时生效）
+  warning.addEventListener('click', () => {
+    if (window.innerWidth > window.innerHeight) {
+      warning.remove();
+      const desktopOverlay = document.getElementById('desktop-overlay');
+      if (desktopOverlay) {
+        desktopOverlay.style.display = 'flex';
+      }
+    }
+  });
+}
+
+function updateOrientationMessage() {
+  const t = document.getElementById('orientation-title');
+  const txt = document.getElementById('orientation-text');
+  const apology = document.getElementById('apology-text');
+  const tapHint = document.getElementById('tap-hint');
+  if (!t || !txt || !apology || !tapHint) return;
+
+  content.style.transition = "transform 0.3s ease"; // 平滑过渡
+
+  if (window.innerHeight > window.innerWidth) {
+    // 竖屏
+    t.innerHTML = `⚠ 建议横屏浏览<br>⚠ Landscape Recommended`;
+    txt.innerHTML = `竖屏显示存在问题，请横屏体验！<br>Portrait has issues, please use landscape!`;
+    apology.style.display = 'block';
+    tapHint.style.display = 'none'; // 竖屏时不显示「点击任意空白处」
+    content.style.maxWidth = "90%";
+  } else {
+    // 横屏
+    t.innerHTML = `✅ 已切换为横屏<br>✅ Switched to Landscape`;
+    txt.innerHTML = `现在可以进入网站啦！<br>Now you can enter the website!`;
+    apology.style.display = 'none'; // 横屏时隐藏「抱歉」
+    tapHint.style.display = 'block';
+    content.style.maxWidth = "70%";
+  }
+}
+
+function checkOrientation() {
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+  if (isMobile) {
+    showOrientationWarning();
+    updateOrientationMessage();
+  }
+}
+window.addEventListener('resize', updateOrientationMessage); // 监听旋转时更新提示
+
+
+// ---------- DOMContentLoaded 初始化 ----------
+window.addEventListener('DOMContentLoaded', () => {
+  // 语言切换按钮
+  document.getElementById('language-toggle').addEventListener('click', toggleLanguage);
+
+  // 头像交互（中英文）
+  setupAvatarInteraction(avatar);
+  setupAvatarInteraction(avatarEn);
+
+  // 留言板（中英文）
+  setupMessageBoard('messageForm', 'messageBoard', 'nickname', 'message');
+  setupMessageBoard('messageForm-en', 'messageBoard-en', 'nickname-en', 'message-en');
+
+  // 绑定作品集按钮（点击时写入 fromGallery 标志）
+  document.querySelectorAll('#to-gallery, #to-gallery-en').forEach(btn => {
+    btn.addEventListener('click', () => {
+      localStorage.setItem('fromGallery', 'true');
+    });
+  });
+
+  // 移动端横屏提示
+  checkOrientation();
+  window.addEventListener('resize', checkOrientation);
+
+  // 蝴蝶动画
+  scheduleNextButterfly();
+
+  // （注意：这里不再调用 onInitialLoad，也不再定义 createDesktopBlocker）
+});
+
+</script>
+</body>
+</html>

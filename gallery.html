@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作品集</title>
+<style> 
+/* === 字体 === */
+@font-face {  font-family: 'Zpix';  src: url('zpix.ttf') format('truetype');}
+
+/* === 页面全局 === */
+html, body {margin: 0;  padding: 0;  width: 100%;  height: 100%;  background: black;  font-family: 'Zpix', monospace;  cursor: url('images/pointer2.png') 4 4, auto;  overflow: hidden;}
+
+/* === 左右边框 === */
+#left-border, #right-border {  position: fixed;  top: 0;   bottom: 0;  width: 64px;  background-repeat: repeat-y;  background-size: 64px auto;  z-index: 5;}
+#left-border { left: 0; background-image: url('images/side-border-left.png'); }
+#right-border { right: 0; background-image: url('images/side-border-right.png'); }
+
+/* === 返回主页按钮 === */
+#back-home {  display: none;}
+
+/* === 左下、右下按钮 === */
+#menu-icon, #music-btn {  position: fixed;  bottom: 20px;  z-index: 15;}
+#menu-icon {  left: 84px;  width: 60px;   height: 60px;  background: url('images/menu-icon.png') no-repeat center center;  background-size: contain;  cursor: url('images/pointer.png') 2 2, pointer;  image-rendering: pixelated;}
+#music-btn {  right: 84px;  width: 40px;   height: 40px;  background: url('images/music-off.png') no-repeat center center;  background-size: contain;  cursor: url('images/pointer.png') 2 2, pointer;  image-rendering: pixelated;}
+#music-btn.playing { background-image: url('images/music-on.png'); }
+#menu-icon:hover, #music-btn:hover {   transform: scale(1.1);   filter: drop-shadow(0 0 6px white); }
+#menu-icon.broken, #music-btn.broken { background: red !important; }
+
+/* === 菜单弹窗 === */
+.menu {  display: none;  position: fixed;  top: 50%;   left: 50%;  transform: translate(-50%, -50%);  background: black;  border: 4px solid white;  padding: 20px;  z-index: 30;  width: 300px;  text-align: center;  color: white;  font-size: 18px;}
+.menu a {  display: block;  margin: 10px 0;  color: white;  text-decoration: none;  cursor: url('images/pointer.png') 2 2, pointer;}
+.menu a:hover { color: #fffacd; }
+#close-menu {  position: absolute;  top: 10px;  right: 10px;  width: 24px;  height: 24px;  background: url('images/close.png') no-repeat center center;  background-size: contain;  cursor: url('images/pointer.png') 2 2, pointer;}
+
+/* === 提示文字 === */
+#music-btn-tooltip {  position: fixed;  bottom: 25px; right: calc(84px + 40px + 8px); transform: translateX(-1%); background: rgba(0,0,0,0.8);  color: white;  padding: 4px 8px;
+  font-size: 14px;  border: 1px solid white;  border-radius: 4px;  white-space: nowrap;  z-index: 20;  opacity: 0;  transition: opacity 0.2s;  pointer-events: none;  font-family: 'Zpix', monospace;}
+#music-btn:hover + #music-btn-tooltip { opacity: 1; }
+
+/* === 对话系统 === */
+#dialog-overlay {  position: fixed;  inset: 0;  background: rgba(0,0,0,0.9);  display: none;  align-items: flex-end;  justify-content: center;  z-index: 100;  padding: 10px;  box-sizing: border-box;}
+#dialog-box {  display: flex;  align-items: flex-end;  margin-left: 13%;   margin-bottom: 5%;  max-width: 90vw;  max-height: 80vh;}
+#char-img {   position: fixed;  bottom: 0; left: 26%; transform: translateX(-50%); z-index: 100; image-rendering: pixelated; pointer-events: none;  max-width: 80vw; max-height: 70vh; height: auto; width: auto;}
+#dialog-frame {  position: relative;  width: 50vw;  max-width: 600px;  height: auto;  font-family: 'Zpix', monospace;  color: white;}
+#dialog-frame-img {  width: 100%;  height: auto;  display: block;}
+#dialog-icon {  position: fixed;  bottom: 80px;    right: 84px;  width: 55px;  height: 55px;  background: url('images/对话.png') no-repeat center center;  background-size: contain;  cursor: url('images/pointer.png') 2 2, pointer;  image-rendering: pixelated;  z-index: 20;  display: none; }
+#dialog-icon:hover {  transform: scale(1.1);  filter: drop-shadow(0 0 6px white);}
+
+/* 半透明蒙版 */
+#dialog-frame::after {  content: "";  position: absolute;  inset: 0;  background: rgba(0,0,0,0.6);  pointer-events: none;}
+#dialog-text {  position: absolute;  top: 5%;  left: 5%;  right: 5%;  bottom: 15%;  font-size: 1.2vw;  line-height: 1.5;  font-size: clamp(12px, 1.2vw, 20px);  pointer-events: none;   z-index: 2;}
+#dialog-next { position: absolute; bottom: 5%; right: 3%; font-size: 1.5vw; animation: blink 1s infinite; cursor: url('images/pointer.png') 2 2, pointer; z-index: 2; display: block;}
+
+/* 让选择项可点（视觉上还是用 dialog-text 里渲染） */
+#choice-list {  margin-left: 2vw;  margin-top: 1vh;  pointer-events: auto;}
+#choice-list .choice {  cursor: url('images/pointer.png') 2 2;  margin: 0.5vh 0;  padding: 0.2vw 0.5vw;  border-radius: 6px;  transition: background 0.2s; pointer-events: all;}
+#choice-list .choice:hover, #choice-list .choice:active {  background: rgba(255, 255, 255, 0.15);}
+
+/* 动画 */
+@keyframes blink {  0%, 50% { opacity: 1; } 50.1%, 100% { opacity: 0; }}
+
+/* 视觉上优化选择高亮（键盘/触控） */
+.choice--active { color: orange; }
+
+/* === 主容器（保留 flex 版本，用于首页三张卡牌展示） === */
+#gallery { position: relative; width: 100%;  height: 100vh;  display: flex; justify-content: center;    align-items: flex-end;     background: black; overflow: hidden;}
+
+/* === 单张卡牌 === */
+.card { position: relative; width: min(430px, 90vw); height: auto; aspect-ratio: 610 / 778; border-radius: 0; overflow: hidden; cursor: url('images/pointer.png'); 
+transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   filter: brightness(1) }
+
+/* 卡片图片 */
+.card img { width: 100%; height: 100%; object-fit: cover; border-radius: 0;}
+
+/* 悬停时层级 */
+.card:hover { z-index: 100; transform: none;}
+
+/* === 悬停暗化逻辑 === */
+/* 鼠标进入 gallery 时，先把所有卡片暗掉 */
+#gallery:hover .card { filter: brightness(0.5);}
+
+/* 只有悬停的那一张恢复亮度 */
+#gallery:hover .card:hover { filter: brightness(1);}
+
+/* 卡片标签 */
+.card-label { position: absolute; bottom: 12px;  left: 50%;  transform: translateX(-50%) translateY(0);  background: rgba(0, 0, 0, 0.75);color: white; padding: 8px 16px;  border-radius: 8px;
+  font-size: 18px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none;}
+.card:hover .card-label { opacity: 1; transform: translateX(-50%) translateY(-8px);}
+
+/* 层级管理（可选） */
+.card:nth-child(1) { z-index: 3; }
+.card:nth-child(2) { z-index: 2; }
+.card:nth-child(3) { z-index: 1; }
+
+/* 分类区容器 */
+.category {  display: none;  padding: 20px 40px; animation: fadeIn 0.5s ease forwards;}
+.category h1 {  text-align: center;  margin-bottom: 20px;  font-size: 28px;}
+
+/* 分类缩略图容器 */
+.thumb { flex: 0 0 auto; width: 250px; text-align: center;  scroll-snap-align: center; }
+.thumb img { width: 100%; border-radius: 8px; cursor: pointer; transition: transform 0.3s;}
+.thumb img:hover { transform: scale(1.05); }
+.thumb h3 { margin-top: 8px; font-size: 16px; color: #fff; text-align: center;}
+
+/* 分类区缩略图：横向拖动滚动 */
+.gallery-grid { display: flex; justify-content: center;  gap: 32px; overflow-x: auto;  scroll-snap-type: x mandatory; padding: 0 64px 20px; margin-top: 60px; box-sizing: border-box;}
+.gallery-grid img { flex: 0 0 auto; width: 250px; cursor: url('images/pointer.png'); border-radius: 8px; scroll-snap-align: center; transition: none; }
+
+/* ========= 文件夹内作品展示 ========= */
+/* 文件夹里的作品展示：横向滚动（默认） */
+.folder .gallery-grid {  display: flex; gap: 32px;overflow-x: auto; scroll-snap-type: x mandatory; margin: 100px 64px 20px; margin-top: 100px;  box-sizing: border-box;justify-content: flex-start;}
+
+/* 每张作品图 */
+.folder .gallery-grid img { flex: 0 0 auto;  max-height: 400px;  height: auto;  width: auto;   object-fit: contain;  border-radius: 8px; cursor: url('images/pointer.png'); transition: transform 0.3s; scroll-snap-align: center; }
+
+/* 悬停效果 */
+.folder .gallery-grid img:hover { transform: scale(1.05);}
+
+/* ====== 自定义滚动条（简约款） ====== */
+.folder .gallery-grid::-webkit-scrollbar { height: 4px;}
+.folder .gallery-grid::-webkit-scrollbar-track {background: transparent;  margin: 0 60px;}
+.folder .gallery-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.847); border-radius: 3px;}
+.folder .gallery-grid::-webkit-scrollbar-thumb:hover {background: rgba(255, 255, 255, 0.363); border-radius: 3px;}
+.folder .gallery-grid {scroll-behavior: smooth;}
+
+/* 分类页底部说明 */
+.category-footer { margin-top: 20px; text-align: center; font-size: 18px; color: #ccc;}
+
+/* 返回按钮 */
+#backBtn { position: fixed; top: 20px; right: 84px; padding: 6px 14px; font-size: 14px;color: white;background: transparent;border: 2px solid white;
+  border-radius: 6px;cursor: pointer;z-index: 1000;display: none; transition: all 0.2s ease;}
+#backBtn:hover { background: white; color: black;}
+
+/* Lightbox */
+#lightbox {position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000;}
+#lightbox img {max-width: 90%;max-height: 90%;border-radius: 8px;}
+.close-lightbox,
+.prev-lightbox,
+.next-lightbox {position: absolute;color: white;font-size: 40px;font-weight: bold;cursor: pointer;transition: 0.3s;user-select: none;}
+.close-lightbox {top: 20px; right: 30px;}
+.prev-lightbox {top: 50%;left: 30px;transform: translateY(-50%);}
+.next-lightbox {top: 50%;right: 30px;transform: translateY(-50%);}
+.close-lightbox:hover,
+.prev-lightbox:hover,
+.next-lightbox:hover { color: #bbb;}
+
+/* 语言切换按钮 */
+#language-toggle { position: fixed; top: 20px; left: 84px; width: 50px; height: 50px; background: url('images/language-zh.png') no-repeat center center; background-size: contain;
+  cursor: url('images/pointer.png') 2 2, pointer; z-index: 15; image-rendering: pixelated; transition: transform 0.2s, filter 0.2s;}
+#language-toggle:hover {transform: scale(1.1);filter: drop-shadow(0 0 6px white);}
+#language-toggle.en { background-image: url('images/language-en.png'); }
+
+/* 动画效果 */
+@keyframes fadeIn {from { opacity: 0; }to{ opacity: 1; }}
+
+/* ===================== 响应式 ===================== */
+
+/* 中等屏幕（笔记本 / 小桌面） */
+@media (max-width: 1024px) {
+  #left-border, #right-border { width: 40px; background-size: 40px auto; }
+  #back-home { left: 60px; width: 40px; height: 40px; }
+  #menu-icon { left: 60px; width: 48px; height: 48px; }
+  #music-btn { right: 60px; width: 32px; height: 32px; }
+  #dialog-icon { right: 55px; width: 48px; height: 48px; bottom: 66px; } /* 音乐键上方 */
+  #backBtn { right: 60px; font-size: 13px; padding: 5px 12px; }
+  .folder .gallery-grid img { max-width: 80%; max-height: 320px; height: auto; }
+}
+
+/* 平板 / 手机横屏 */
+@media (max-width: 768px) {
+  .card { width: 80vw; margin: 0 10px; }
+  .card-label { font-size: 14px; padding: 6px 12px; }
+  .thumb { width: 180px; }
+  .thumb h3 { font-size: 14px; }
+  .folder .gallery-grid { margin: 80px 20px 20px; gap: 20px; }
+  .folder .gallery-grid img { max-width: 100%; max-height: 260px; height: auto; }
+  #music-btn { right: 40px; width: 28px; height: 28px; }
+  #dialog-icon { right: 40px; width: 40px; height: 40px; bottom: 60px; }
+  .thumb { width: 160px; }
+  .thumb img { max-width: 80%;  max-height: 160px;  height: auto;  object-fit: contain; }
+  .gallery-grid img {  max-width: 80%;  max-height: 180px; height: auto;  object-fit: contain; }
+}
+
+/* 小屏手机竖屏 */
+@media (max-width: 480px) {
+  #left-border, #right-border { display: none; } /* 边框隐藏，腾空间 */
+  #back-home { left: 10px; top: 10px; width: 32px; height: 32px; }
+  #menu-icon { left: 10px; bottom: 10px; width: 40px; height: 40px; }
+  #music-btn { right: 10px; bottom: 10px; width: 28px; height: 28px; }
+  #dialog-icon { right: 10px; bottom: 60px; width: 36px; height: 36px; } /* 紧跟音乐键上方 */
+  #backBtn { right: 10px; top: 10px; font-size: 12px; padding: 4px 10px; }
+  .card { width: 90vw; margin: 0 5px; }
+  .card-label { font-size: 12px; }
+  .folder .gallery-grid { margin: 60px 10px 20px; gap: 16px; }
+  .folder .gallery-grid img { max-width: 100%; max-height: 200px; height: auto; }
+  .thumb { width: 120px; }
+  .thumb img {  max-width: 80%;  max-height: 100px;  height: auto;  object-fit: contain; }
+  .gallery-grid img { max-width: 80%; max-height: 140px; height: auto; object-fit: contain; }
+}
+
+/* Lightbox 图片在任何屏幕都不超出视口 */
+#lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+}
+</style>
+</head>
+<body>
+  <div id="language-toggle"></div><script src="lang.js"></script>
+  <!-- 左右边框 -->
+  <div id="left-border"></div>
+  <div id="right-border"></div>
+
+  <!-- 返回主页按钮 -->
+  <div id="back-home" role="button" aria-label="返回主页" tabindex="0"></div>
+
+<!-- 作品集入口 -->
+<div id="gallery">
+  <!-- 委托区 (1) -->
+  <div class="card" data-target="category1">
+    <img src="images/skin.png" alt="委托区">
+    <div class="card-label" data-key="commissionArea">委托区</div>
+  </div>
+  <!-- 同人区 (2) -->
+  <div class="card" data-target="category2">
+    <img src="images/bone.png" alt="同人区">
+    <div class="card-label" data-key="fanArea">同人区</div>
+  </div>
+  <!-- 原创区 (3) -->
+  <div class="card" data-target="category3">
+    <img src="images/brain.png" alt="原创区">
+    <div class="card-label" data-key="originalArea">原创区</div>
+  </div>
+</div>
+
+<!-- 分类页：委托区 -->
+<div id="category1" class="category">
+  <div class="category-footer"data-key="commissionArea"><h2>委托区</h2></div>
+  <div class="gallery-grid">
+    <div class="thumb">
+      <img src="works/thumb1.jpg" alt="委托分类1" onclick="openFolder('folder1', 'category1')">
+      <h3 data-key="bwCommission">黑白委托</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/thumb2.jpg" alt="委托分类2" onclick="openFolder('folder2', 'category1')">
+      <h3 data-key="colorCommission">彩色委托</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/thumb3.jpg" alt="委托分类2" onclick="openFolder('folder3', 'category1')">
+      <h3 data-key="commissionDetails">委托明细</h3>
+    </div>
+  </div>
+</div>
+
+<!-- 文件夹内容（委托区子项） -->
+<div id="folder1" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/黑白/w1.jpg" alt="委托作品1">
+    <img src="works/黑白/w2.jpg" alt="委托作品2">
+    <img src="works/黑白/w3.jpg" alt="委托作品3">
+    <img src="works/黑白/w4.jpg" alt="委托作品4">
+    <img src="works/黑白/w5.jpg" alt="委托作品5">
+    <img src="works/黑白/w6.jpg" alt="委托作品6">
+    <img src="works/黑白/w7.jpg" alt="委托作品7">
+    <img src="works/黑白/w8.jpg" alt="委托作品8">
+    <img src="works/黑白/w9.jpg" alt="委托作品9">
+    <img src="works/黑白/w10.jpg" alt="委托作品10">
+    <img src="works/黑白/w11.jpg" alt="委托作品11">
+    <img src="works/黑白/w12.jpg" alt="委托作品12">
+    <img src="works/黑白/w13.jpg" alt="委托作品13">
+    <img src="works/黑白/w14.jpg" alt="委托作品14">
+    <img src="works/黑白/w15.jpg" alt="委托作品15">
+  </div>
+</div>
+
+<div id="folder2" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/彩色/b1.jpg" alt="委托作品1">
+    <img src="works/彩色/b2.jpg" alt="委托作品2">
+    <img src="works/彩色/b3.jpg" alt="委托作品3">
+    <img src="works/彩色/b4.jpg" alt="委托作品4">
+    <img src="works/彩色/b5.jpg" alt="委托作品5">
+    <img src="works/彩色/b6.jpg" alt="委托作品6">
+    <img src="works/彩色/b7.jpg" alt="委托作品7">
+    <img src="works/彩色/b8.jpg" alt="委托作品8">
+  </div>
+</div>
+
+<div id="folder3" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/中.png" alt="委托明细1">
+    <img src="works/英.png" alt="委托明细2">
+    <img src="works/中2.png" alt="委托明细1">
+    <img src="works/英2.png" alt="委托明细2">
+  </div>
+</div>
+
+<!-- 分类页：同人区 -->
+<div id="category2" class="category">
+  <div class="category-footer" data-key="fanArea"><h2>同人区</h2></div>
+  <div class="gallery-grid">
+    <div class="thumb">
+      <img src="works/thumb3.jpg" alt="同人分类1" onclick="openFolder('folder4', 'category2')">
+      <h3 data-key="illustration">插画</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/mobrei/mobrei.jpg" alt="同人分类2" onclick="openFolder('folder5', 'category2')">
+      <h3 data-key="mp100">灵能百分百-茂灵</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/aot/老兵组.jpg" alt="同人分类2" onclick="openFolder('folder6', 'category2')">
+      <h3 data-key="aot">进击的巨人-老兵组</h3>
+    </div>
+  </div>
+</div>
+
+<!-- 文件夹内容（同人区子项） -->
+<div id="folder4" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/同人/t1.png" alt="同人作品1">
+    <img src="works/同人/t2.jpg" alt="同人作品1">
+    <img src="works/同人/t3.jpg" alt="同人作品1">
+    <img src="works/同人/t4.jpg" alt="同人作品1">
+    <img src="works/同人/t5.jpg" alt="同人作品1">
+    <img src="works/同人/t6.jpg" alt="同人作品1">
+    <img src="works/同人/t7.jpg" alt="同人作品1">
+    <img src="works/同人/t8.jpg" alt="同人作品1">
+    <img src="works/同人/t9.jpg" alt="同人作品1">
+    <img src="works/同人/t10.jpg" alt="同人作品1">
+    <img src="works/同人/t11.jpg" alt="同人作品1">
+    <img src="works/同人/t12.jpg" alt="同人作品1">
+    <img src="works/同人/t13.jpg" alt="同人作品1">
+  </div>
+</div>
+
+<div id="folder5" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/mobrei/mobrei长篇/1.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/2.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/3.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/4.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/5.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/6.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/7.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/8.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/9.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/10.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/11.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/12.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/13.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/14.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/15.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/16.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/17.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/18.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/19.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/20.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/21.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/22.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/23.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/23-1.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/24.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/25.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/26.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/27.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/28.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/29.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/30.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/31.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/32.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/33.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/34.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/35.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/36.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/37.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/38.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/39.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/40.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/41.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/42.jpg" alt="同人作品2">
+    <img src="works/mobrei/mobrei长篇/43.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/44.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/45.jpg" alt="同人作品2"> 
+    <img src="works/mobrei/mobrei长篇/46.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/47.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/48.jpg" alt="同人作品2"> 
+    <img src="works/mobrei/mobrei长篇/49.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/50.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/51.jpg" alt="同人作品2"> 
+    <img src="works/mobrei/mobrei长篇/52.jpg" alt="同人作品2"><img src="works/mobrei/mobrei长篇/53.jpg" alt="同人作品2"> 
+  </div>
+  </div>
+</div>
+
+<div id="folder6" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/aot/1.jpg" alt="同人作品3">
+    <img src="works/aot/2.jpg" alt="同人作品3">
+    <img src="works/aot/3.jpg" alt="同人作品3">
+    <img src="works/aot/4.jpg" alt="同人作品3">
+    <img src="works/aot/5.jpg" alt="同人作品3">
+    <img src="works/aot/6.jpg" alt="同人作品3">
+    <img src="works/aot/7.jpg" alt="同人作品3">
+    <img src="works/aot/8.jpg" alt="同人作品3">
+    <img src="works/aot/9.jpg" alt="同人作品3">
+    <img src="works/aot/10.jpg" alt="同人作品3">
+    <img src="works/aot/12.jpg" alt="同人作品3">
+    <img src="works/aot/13.jpg" alt="同人作品3">
+    <img src="works/aot/14.jpg" alt="同人作品3">
+    <img src="works/aot/15.jpg" alt="同人作品3">
+    <img src="works/aot/16.jpg" alt="同人作品3">
+    <img src="works/aot/17.jpg" alt="同人作品3">
+    <img src="works/aot/1-1.jpg" alt="同人作品3">
+    <img src="works/aot/1-2.jpg" alt="同人作品3">
+    <img src="works/aot/1-3.jpg" alt="同人作品3">
+    <img src="works/aot/1-4.jpg" alt="同人作品3">
+  </div>
+</div>
+
+<!-- 分类页：原创区 -->
+<div id="category3" class="category">
+  <div class="category-footer"data-key="originalArea"><h2>原创区</h2></div>
+  <div class="gallery-grid">
+    <div class="thumb">
+      <img src="works/thumb3.jpg" alt="作品分类1" onclick="openFolder('folder7', 'category3')">
+      <h3 data-key="characterBook">角色设定集</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/thumb3.jpg" alt="作品分类2" onclick="openFolder('folder8', 'category3')">
+      <h3 data-key="illustrationBook">插画合集</h3>
+    </div>
+  </div>
+</div>
+
+<!-- 文件夹内容（原创区子项） -->
+<div id="folder7" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/oc/2.jpg" alt="作品1">
+    <img src="works/oc/3.jpg" alt="作品2">
+  </div>
+</div>
+
+<div id="folder8" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/oc/ailet.jpg" alt="作品3">
+    <img src="works/oc/kyouji.jpg" alt="作品3">
+    <img src="works/oc/luis.jpg" alt="作品3">
+    <img src="works/oc/asher.jpg" alt="作品3">
+  </div>
+</div>
+
+ <!-- Lightbox -->
+<div id="lightbox">
+  <span class="close-lightbox">&times;</span>
+  <span class="prev-lightbox">&#10094;</span>
+  <img src="" alt="预览图">
+  <span class="next-lightbox">&#10095;</span>
+</div>
+
+<button id="backBtn" data-key="back">返回</button>
+
+  <!-- 左下、右下按钮 -->
+  <div id="music-btn" role="button" aria-label="播放音乐"></div>
+  <div id="music-btn-tooltip" data-key="musicTooltip">单击播放/暂停 · 长按切歌</div>
+  <div id="menu-icon" role="button" aria-label="打开菜单"></div>
+
+  <!-- 菜单弹窗 -->
+  <div class="menu" id="menu" role="dialog" aria-modal="true" aria-hidden="true">
+    <span id="close-menu" role="button" aria-label="关闭菜单"></span>
+    <a href="index.html" onclick="localStorage.setItem('fromGallery', 'true')" data-key="backToIndex">返回大脑皮层</a>
+  </div>
+
+  <!-- 音效 -->
+<audio id="bgm" preload="auto"></audio>
+<audio id="clickSound" src="sounds/click.mp3"></audio>
+<audio id="changeSound" src="sounds/change.mp3" preload="auto"></audio>
+<audio id="answerSound" src="sounds/answer.mp3" preload="auto"></audio>
+<audio id="hoverSound" src="sounds/clickselect1.mp3" preload="auto"></audio>
+<audio id="selectSound" src="sounds/clickselect2.mp3" preload="auto"></audio>
+
+
+  <!-- === 对话系统 === -->
+<div id="dialog-overlay" aria-hidden="true">
+  <div id="dialog-box">
+    <img id="char-img" src="images/对话2.gif" alt="小人">
+    <div id="dialog-frame" role="region" aria-label="对话框">
+      <img src="images/dialog-frame.gif" alt="对话框框图" id="dialog-frame-img">
+      <div id="dialog-text" aria-live="polite"></div>
+      <div id="dialog-next">▶</div>
+      <!-- 可点的更大点击区域（透明）以增强触控体验 -->
+      <div id="dialog-next-hit" title="继续"></div>
+    </div>
+  </div>
+</div>
+<div id="dialog-icon" title="打开对话"></div>
+
+<script>
+/* ========= 全局元素 ========= */
+const bgm = document.getElementById('bgm');
+const clickSound = document.getElementById('clickSound');
+const musicBtn = document.getElementById('music-btn');
+const menuIcon = document.getElementById('menu-icon');
+const backHome = document.getElementById('back-home');
+const menu = document.getElementById('menu');
+const closeMenu = document.getElementById('close-menu');
+const dialogOverlay = document.getElementById('dialog-overlay');
+const dialogText = document.getElementById('dialog-text');
+const dialogNext = document.getElementById('dialog-next');
+const dialogNextHit = document.getElementById('dialog-next-hit');
+const dialogIcon = document.getElementById('dialog-icon');
+const gallery = document.getElementById("gallery");
+const categories = document.querySelectorAll(".category");
+const cards = document.querySelectorAll(".card");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = lightbox.querySelector("img");
+const backBtn = document.getElementById("backBtn"); 
+
+let currentImages = [];  // 当前文件夹的所有图片
+let currentIndex = 0;
+let currentFolderId = null;
+let lastCategoryId = null;
+hoverSound.volume = 0.6;
+selectSound.volume = 0.6;
+
+// 移动端解锁
+function unlockCardAudio(){
+  [hoverSound, selectSound].forEach(a=>{
+    a.play().catch(()=>{});
+    a.pause();
+    a.currentTime = 0;
+  });
+  document.removeEventListener("touchstart", unlockCardAudio);
+}
+document.addEventListener("touchstart", unlockCardAudio);
+
+// ===== 事件委托 =====
+let lastHoverTime = 0;
+const hoverCooldown = 100; // 毫秒，避免太密集播放
+
+if(gallery){
+  gallery.addEventListener("mouseover", e=>{
+    const card = e.target.closest(".card");
+    if(card && gallery.contains(card)){
+      const now = Date.now();
+      if(now - lastHoverTime > hoverCooldown){
+        lastHoverTime = now;
+        try {
+          hoverSound.pause();
+          hoverSound.currentTime = 0;
+          hoverSound.play();
+        } catch(e){}
+      }
+    }
+  });
+
+  gallery.addEventListener("click", e=>{
+    const card = e.target.closest(".card");
+    if(card && gallery.contains(card)){
+      try {
+        selectSound.pause();
+        selectSound.currentTime = 0;
+        selectSound.play();
+      } catch(e){}
+    }
+  });
+}
+/* =====================
+   公共：关闭 folder -> 回分类
+===================== */
+function closeFolder(folderId, categoryId) {
+  document.getElementById(folderId).style.display = "none";
+  document.getElementById(categoryId).style.display = "block";
+  currentFolderId = null;
+  lastCategoryId = null;
+
+}
+
+/* =====================
+   打开分类（点击卡片）
+===================== */
+cards.forEach(card => {
+  card.addEventListener("click", () => {
+    const targetId = card.dataset.target;
+    gallery.style.display = "none";
+    document.getElementById(targetId).style.display = "block";
+    lastCategoryId = targetId;   // 记录分类ID
+    currentFolderId = null;      // 确保不是文件夹
+    backBtn.style.display = "block"; // 显示返回按钮
+  });
+});
+
+/* =====================
+   打开文件夹
+===================== */
+function openFolder(folderId, categoryId) {
+  document.getElementById(categoryId).style.display = "none";
+  document.getElementById(folderId).style.display = "block";
+
+  currentFolderId = folderId;
+  lastCategoryId = categoryId;
+
+  backBtn.style.display = "block"; // 显示返回按钮
+}
+
+/* =====================
+   返回按钮点击事件
+===================== */
+backBtn.addEventListener("click", () => {
+  if (clickSound) {
+    clickSound.currentTime = 0;
+    clickSound.play();
+  }
+
+  if (currentFolderId && lastCategoryId) {
+    // 在文件夹 → 返回分类
+    document.getElementById(currentFolderId).style.display = "none";
+    document.getElementById(lastCategoryId).style.display = "block";
+    currentFolderId = null; 
+  } else if (lastCategoryId) {
+    // 在分类 → 返回首页
+    document.getElementById(lastCategoryId).style.display = "none";
+    gallery.style.display = "flex";
+    lastCategoryId = null;
+    backBtn.style.display = "none"; // 返回到首页后隐藏按钮
+  }
+});
+/* =====================
+   点击缩略图（阻止冒泡）
+===================== */
+document.querySelectorAll(".thumb img").forEach(img => {
+  img.addEventListener("click", e => e.stopPropagation());
+});
+
+/* =====================
+   点击文件夹里的作品 → Lightbox
+===================== */
+document.querySelectorAll(".folder .gallery-grid img").forEach(img => {
+  img.addEventListener("click", () => {
+    const grid = img.closest(".gallery-grid");
+    currentImages = Array.from(grid.querySelectorAll("img"));
+    currentIndex = currentImages.indexOf(img);
+
+    lightboxImg.src = img.src;
+    lightbox.style.display = "flex";
+  });
+});
+
+/* =====================
+   Lightbox 控制
+===================== */
+function showImageAt(index) {
+  if (currentImages.length) {
+    currentIndex = (index + currentImages.length) % currentImages.length;
+    lightboxImg.src = currentImages[currentIndex].getAttribute("src");
+  }
+}
+
+lightbox.addEventListener("click", e => {
+  if (e.target === lightbox) lightbox.style.display = "none";
+});
+
+document.addEventListener("keydown", e => {
+  if (lightbox.style.display === "flex") {
+    if (e.key === "ArrowLeft") showImageAt(currentIndex - 1);
+    if (e.key === "ArrowRight") showImageAt(currentIndex + 1);
+    if (e.key === "Escape") lightbox.style.display = "none";
+  } else if (e.key === "Escape" && currentFolderId && lastCategoryId) {
+    closeFolder(currentFolderId, lastCategoryId);
+  }
+});
+
+document.querySelector(".close-lightbox")?.addEventListener("click", () => {
+  lightbox.style.display = "none";
+});
+document.querySelector(".prev-lightbox")?.addEventListener("click", () => showImageAt(currentIndex - 1));
+document.querySelector(".next-lightbox")?.addEventListener("click", () => showImageAt(currentIndex + 1));
+
+/* =====================
+   滚轮横向滚动（统一）
+===================== */
+document.querySelectorAll(".folder .gallery-grid").forEach(grid => {
+  grid.addEventListener("wheel", e => {
+    if (e.deltaY !== 0) {
+      e.preventDefault();
+      grid.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+});
+
+/* 播放点击音效（容错）*/
+function playClick() { 
+  try { 
+    clickSound.currentTime = 0; 
+    clickSound.play(); 
+  } catch (e) {} 
+}
+
+/* === BGM 播放列表 === */
+const playlist = [
+  "sounds/作品集bgm/adventure.mp3",
+  "sounds/作品集bgm/目覚めの村.mp3",
+  "sounds/作品集bgm/latehours.mp3",
+  "sounds/作品集bgm/またね。.mp3"
+];
+
+let currentTrack = 0;
+let bgmStarted = false; // 是否已手动触发过播放
+let pressTimer;
+let isLongPress = false;
+
+/* 初始化音频 */
+bgm.src = playlist[currentTrack];
+
+/* 封装播放函数 */
+function playTrack(index) { currentTrack = index; bgm.src = playlist[currentTrack]; bgm.play().then(() => { musicBtn.classList.add("playing"); }).catch(err => {  console.log("播放失败：", err); });}
+
+/* 自动切换到下一首 */
+bgm.addEventListener("ended", () => { const nextIndex = (currentTrack + 1) % playlist.length; playTrack(nextIndex);});
+
+/* 音乐按钮逻辑：单击播放/暂停，长按切歌（鼠标/触屏兼容） */
+function startPressTimer() {
+  isLongPress = false;
+  pressTimer = setTimeout(() => {
+    isLongPress = true;
+    playClick();
+    const nextIndex = (currentTrack + 1) % playlist.length;
+    playTrack(nextIndex);
+  }, 600);
+}
+function clearPressTimer() { clearTimeout(pressTimer);}
+
+musicBtn.addEventListener("mousedown", startPressTimer);
+musicBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startPressTimer(); }, {passive:false});
+musicBtn.addEventListener("mouseup", () => { clearPressTimer(); if (!isLongPress) { playClick(); if (bgm.paused) { playTrack(currentTrack); } else { bgm.pause(); musicBtn.classList.remove("playing"); } }});
+musicBtn.addEventListener("touchend", (e) => { e.preventDefault(); clearPressTimer(); if (!isLongPress) { playClick(); if (bgm.paused) { playTrack(currentTrack); } else { bgm.pause(); musicBtn.classList.remove("playing"); } }}, {passive:false});
+musicBtn.addEventListener("mouseleave", clearPressTimer);
+musicBtn.addEventListener("touchcancel", clearPressTimer);
+
+/* 返回主页 */
+backHome.addEventListener('click', () => {
+  playClick();
+  window.location.href = 'index.html';
+});
+backHome.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') backHome.click(); });
+
+/* 菜单逻辑 */
+menuIcon.addEventListener('click', () => {
+  playClick();
+  const open = menu.style.display === 'block';
+  menu.style.display = open ? 'none' : 'block';
+  menu.setAttribute('aria-hidden', open ? 'true' : 'false');
+});
+closeMenu.addEventListener('click', () => {
+  playClick();
+  menu.style.display = 'none';
+  menu.setAttribute('aria-hidden', 'true');
+});
+menuIcon.style.display = 'block';
+musicBtn.style.display = 'block';
+
+/* ========= 对话系统数据（中英双语） ========= */
+const dialogTranslations = {
+  zh: {
+    noticeFirst: [
+      "嗯……哈喽，你们好。你可以点一下对话框右下角的▶，按space或enter来继续对话。按下之后背景音乐也会随之开启。",
+      "……咳，‘这里放的都是我画的各种各样的图。’",
+      "‘主要分为原创区，同人区和委托区。需要注意的是，里面包括但不限于色情，暴力，血腥……其实大多都比较清水，应该还好，只是想稍微提醒一下里面可能会出现的元素。’",
+      "‘同人可能会雷到部分人，嗯，懂得就避开，我已经给每个文件都套上名字了。’",
+      "‘就这样！随便看看吧^3^ ———— 鸟鸟’。",
+      "去逛逛吧，有什么问题的话可以来找我。虽然我不知道能不能答上来就是了……"
+    ],
+    noticeLater: [
+      "好，我再说明一次注意事项。",
+      "这里有原创区、同人区和委托区，可能会出现色情、暴力、血腥之类的元素。",
+      "同人部分可能会雷到部分人，自主避开就好。"
+    ],
+    chat: [
+      "……我不是一个很好的叙述者，不过你要是想听，应该说看，的话，也行。",
+      "主页上的骑士，其实是我的姐姐喔。好吧，只是名义上的“姐姐”。我连该怎么称呼她都不知道，噢对，叫鸟鸟。",
+      "真傻。",
+      "像个男人？她没有一个确切的性别之分，应该说，她想成为什么就是什么。那个可以点击的头像也是她……",
+      "还有那个人……好久没见到她了。以前见到都在和姐姐打架。",
+      "那个人消失了。也是，天天叫嚣着要杀了对方怎么可能一直呆在一起。",
+      "我吗？",
+      "额……硬要说的话，算是姐姐的变体？"
+    ]
+  },
+  en: {
+    noticeFirst: [
+      "Hmm... hello there. You can click the ▶ at the bottom right, or press Space/Enter to continue. Once you press, the background music will start too.",
+      "...Ahem, 'This is where I put all kinds of artworks I've drawn.'",
+      "'They are mainly divided into Original Works, Fandom, and Commissions. Please note, the content may include but is not limited to sexual, violent, or bloody elements... Most of them are fairly tame, but I just want to give a small reminder.'",
+      "'Some fandom works may upset certain people. Well, you know, just avoid what you don’t like. I’ve already given each file a clear name.'",
+      "'That’s it! Feel free to look around ^3^ ———— NiaoNiao'.",
+      "Go take a look. If you have questions, you can come to me… though I don’t know if I’ll have the answers."
+    ],
+    noticeLater: [
+      "Alright, let me explain the notice again.",
+      "There are Original Works, Fandom, and Commissions here, which may contain sexual, violent, or bloody elements.",
+      "Some fandom works may upset certain people, so just avoid them yourself."
+    ],
+    chat: [
+      "…I’m not a very good storyteller, but if you want to listen—well, read—it’s fine.",
+      "The knight on the homepage is actually my 'sister'. Well, just in name. I don’t even know how to call her properly. Oh right, she’s called Kai.",
+      "So silly.",
+      "Like a man? She doesn’t really have a fixed gender. It’s more like—whatever she wants to be, she becomes. That clickable avatar is also her…",
+      "And that person… I haven’t seen her for a long time. Last time, she was always fighting with my sister.",
+      "That person disappeared. Makes sense though, shouting about killing each other every day—how could they stay together forever?",
+      "Me?",
+      "Uh… if I have to say, I’m like a variant of my sister?"
+    ]
+  }
+};
+
+/* ========= 分支 / 选项数据（中英双语） ========= */
+const chatBranchTranslations = {
+  zh: [
+    {
+      text: [
+        "……你是很喜欢听别人八卦的那种人吗？",
+        "有些言重了，不好意思。你想聊什么？"
+      ],
+      options: [
+        { label: "能再多说说有关你的事情吗？", 
+          next: [
+            "可以的，我想想看。", 
+            "我从一开始被创造以来就被当成看板娘一样，萌属性挺重的不是吗？所以我就被安排进行这种类似galgame情节了。", 
+            "有什么有趣的事情的话……我想起来了，我力气比姐姐大吧。这算有趣的事情吗？"
+          ] 
+        },
+        { label: "我能撩你吗？", 
+          next: ["……我已经有伴侣了。","给你这个选项的人真的好恶趣味。"] 
+        }
+      ]
+    },
+    {
+      text: ["怎么了？"],
+      options: [
+        { label: "“那个人”指的是谁？", 
+          next: ["她是姐姐的前身。","姐姐很不喜欢她……她也不喜欢姐姐，至于原因，我不太想说。","为什么就不能好好地喜欢自己呢……"] 
+        },
+        { label: "我是谁？", 
+          next: {
+            text: ["你这是想进行哲学商讨吗？还是纯粹的提问？"],
+            options: [
+              { label: "哲学商讨", 
+                next: [
+                  "定义自己很难，确定自己是谁几乎等于决定自己在这世界该怎么活着。", 
+                  "你是一个个体，你为你自己而思考，为自己而活，为自己成为自己。简单来说就是一个环，这个环里你所经历的一切造就了你。", 
+                  "这么说吧，很多东西值得我们去思考……但无论有没有结果都没关系。", 
+                  "至少我们活过。", 
+                  "……"
+                ] 
+              },
+              { label: "纯粹提问", 
+                next: ["哼嗯, 你是这个网站的用户，这种情况下也能叫玩家吧。"] 
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  en: [
+    {
+      text: [
+        "…Are you the kind of person who loves hearing gossip?",
+        "That was a bit harsh, sorry. What do you want to talk about?"
+      ],
+      options: [
+        { label: "Can you tell me more about yourself?", 
+          next: [
+            "Sure, let me think.", 
+            "Since the beginning of my creation, I’ve been treated like a mascot character. Pretty heavy on the moe traits, right? So I got assigned into these galgame-like scenarios.", 
+            "Something interesting… oh, I remember: I’m stronger than my sister. Does that count as interesting?"
+          ] 
+        },
+        { label: "Can I flirt with you?", 
+          next: ["…I already have a partner.","The person who gave you this option has such a twisted sense of humor."] 
+        }
+      ]
+    },
+    {
+      text: ["What’s up?"],
+      options: [
+        { label: "Who’s that 'other person'?", 
+          next: ["She’s my sister’s predecessor.","My sister really dislikes her… and she also dislikes my sister. As for why, I don’t really want to say.","Why is it so hard to simply like yourself…"] 
+        },
+        { label: "Who am I?", 
+          next: {
+            text: ["Are you trying to start a philosophical debate, or is it just a plain question?"],
+            options: [
+              { label: "Philosophical debate", 
+                next: [
+                  "Defining yourself is hard. Deciding who you are is almost the same as deciding how you should live in this world.", 
+                  "You are an individual. You think for yourself, live for yourself, become yourself. In simple terms, you are a circle—the sum of everything you’ve experienced makes you who you are.", 
+                  "Let’s just say, many things are worth pondering… but it doesn’t matter if we don’t find answers.", 
+                  "At least we have lived.", 
+                  "…"
+                ] 
+              },
+              { label: "Plain question", 
+                next: ["Heh, you’re a visitor to this website. In this case, you can also be called a 'player'."] 
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+};
+
+
+/* ========= 对话系统状态与函数（修正版，中英双语） ========= */
+let currentDialog = [];
+let currentLine = 0;
+let choosing = false;
+let isTyping = false;
+let typingTimer = null;
+let currentBranch = null; 
+let branchStep = 0;
+let debugForceFirstDialog = true; //**********************
+let firstTimeDialog = debugForceFirstDialog || !localStorage.getItem("galleryDialogShown");
+let answerSound = new Audio("./sounds/answer.mp3"); 
+let changeSound = new Audio("./sounds/change.wav"); 
+answerSound.volume = 0.5;
+changeSound.volume = 0.5;
+
+let audioUnlocked = false; 
+function unlockAudio() {
+  if (audioUnlocked) return;
+  answerSound.play().catch(()=>{});
+  answerSound.pause();
+  answerSound.currentTime = 0;
+  changeSound.play().catch(()=>{});
+  changeSound.pause();
+  changeSound.currentTime = 0;
+  audioUnlocked = true;
+}
+document.addEventListener("touchstart", unlockAudio, {once:true});
+
+/* 打字机效果 */
+function typeLine(line, callback){
+  let i=0;
+  dialogText.textContent = "";
+  isTyping = true;
+  typingTimer = setInterval(()=>{
+    if (i >= line.length) {
+      clearInterval(typingTimer);
+      isTyping=false;
+      callback && callback();
+      return;
+    }
+    dialogText.textContent += line[i];
+    i++;
+    if(i>=line.length){
+      clearInterval(typingTimer);
+      isTyping=false;
+      callback && callback();
+    }
+  },50);
+}
+
+/* 显示下一行 */
+function showNextLine() {
+  if (!bgmStarted) {
+    try {
+      bgm.play().then(() => {
+        document.getElementById('music-btn').classList.add('playing'); 
+        bgmStarted = true;
+      }).catch(() => console.log("浏览器阻止自动播放 BGM"));
+    } catch(e) { console.log("BGM 播放失败", e); }
+  }
+
+  if (choosing) return;
+
+  if (isTyping) {
+    clearInterval(typingTimer);
+    dialogText.textContent = currentDialog[currentLine-1] || currentDialog[currentLine] || "";
+    isTyping = false;
+    return;
+  }
+
+  if (currentBranch && currentLine === currentDialog.length) {
+    if (currentBranch.options) { showBranchOptions(); return; }
+  }
+
+  if (currentLine < currentDialog.length) {
+    typeLine(currentDialog[currentLine], ()=>{});
+    currentLine++;
+  } else {
+    endDialog();
+  }
+}
+
+/* 对话结束 */
+function endDialog() {
+  dialogOverlay.style.display = "none";
+  dialogOverlay.setAttribute('aria-hidden', 'true');
+  localStorage.setItem("galleryDialogShown", "true");
+  dialogIcon.style.display = "block";  
+  currentBranch = null;
+  branchStep = 0;
+}
+
+/* 首次加载 */
+window.addEventListener("load", () => {
+  if (firstTimeDialog) {
+    currentDialog = [...dialogTranslations[currentLang].noticeFirst];
+    currentLine = 0;
+    dialogOverlay.style.display = "flex";
+    dialogOverlay.setAttribute('aria-hidden', 'false');
+    dialogIcon.style.display = "block"; // 保留小人图标
+    typeLine(currentDialog[currentLine], ()=>{});
+    currentLine++;
+  } else {
+    dialogIcon.style.display = "block";
+  }
+});
+
+/* 点击小人图标 */
+dialogIcon.addEventListener('click', () => {
+  try { clickSound.currentTime = 0; clickSound.play(); } catch(e) {}
+  startChoice();
+});
+
+/* ▶ 点击 */
+dialogNext.addEventListener("click", showNextLine);
+dialogNextHit.addEventListener("click", (e) => { e.stopPropagation(); showNextLine(); });
+
+/* 移动端点击覆盖层推进 */
+dialogOverlay.addEventListener("click", (e) => {
+  if (e.target.closest("#choice-list") || e.target.closest(".menu") || e.target.closest("#menu-icon") || e.target.closest("#music-btn")) return;
+  if (choosing) return;
+  showNextLine();
+});
+
+/* ========= 分支 / 选项逻辑 ========= */
+function startChoice(){
+  dialogOverlay.style.display = "flex";
+  dialogOverlay.setAttribute("aria-hidden", "false");
+  dialogNext.style.display = "none";
+  choosing = true;
+  typeLine(currentLang === "zh" ? "想聊什么吗？" : "What do you want to talk about?", ()=>{
+    dialogText.innerHTML += `
+      <div id="choice-list">
+        <div class="choice" data-type="notice">${currentLang==="zh"?"注意事项":"Notice"}</div>
+        <div class="choice" data-type="chat">${currentLang==="zh"?"闲聊":"Chat"}</div>
+        <div class="choice" data-type="none">${currentLang==="zh"?"没事":"Nothing"}</div>
+      </div>`;
+    const choices = document.querySelectorAll("#choice-list .choice");
+    currentIndex = 0;
+    choices.forEach(c => { c.dataset.typeLabel = c.textContent.trim(); });
+    updateChoiceHighlight(currentIndex, false);
+
+    choices.forEach(c => {
+      c.addEventListener("click", () => {
+        if(!audioUnlocked) unlockAudio();
+        try { answerSound.currentTime = 0; answerSound.play(); } catch(e){}
+        if(currentBranch){ 
+          branchStep = parseInt(c.dataset.index);
+          let nextData = currentBranch.options[branchStep].next;
+          if(Array.isArray(nextData)){ currentDialog = nextData; currentBranch=null; } 
+          else if(typeof nextData==="object"&&nextData.text){ 
+            currentDialog = Array.isArray(nextData.text)? [...nextData.text]: [nextData.text]; 
+            currentBranch = { text: [], options: nextData.options||null }; 
+          } else { currentDialog=[String(nextData)]; currentBranch=null; }
+          currentLine=0; choosing=false; dialogNext.style.display="block"; showNextLine();
+        } else { chooseBranch(c.dataset.type); }
+      });
+    });
+  });
+}
+
+function updateChoiceHighlight(index, playSound = true){
+  const choices = document.querySelectorAll("#choice-list .choice");
+  choices.forEach((c,i)=>{
+    if(i === index){
+      c.classList.add("choice--active");
+      c.textContent = "> " + c.dataset.typeLabel;
+      if(playSound){
+        if(!audioUnlocked) unlockAudio();
+        try { changeSound.currentTime=0; changeSound.play(); } catch(e){}
+      }
+    } else { c.classList.remove("choice--active"); c.textContent = "  " + c.dataset.typeLabel; }
+  });
+}
+
+/* 键盘导航 */
+document.addEventListener("keydown", function(e){
+  if(choosing){
+    const choices = document.querySelectorAll("#choice-list .choice");
+    if(!choices.length) return;
+    if(e.key==="ArrowUp"){ currentIndex=(currentIndex-1+choices.length)%choices.length; updateChoiceHighlight(currentIndex); e.preventDefault(); }
+    if(e.key==="ArrowDown"){ currentIndex=(currentIndex+1)%choices.length; updateChoiceHighlight(currentIndex); e.preventDefault(); }
+    if(e.key==="Enter"){ 
+      if(!audioUnlocked) unlockAudio(); try { answerSound.currentTime=0; answerSound.play(); } catch(e){}
+      if(currentBranch){ choices[currentIndex].click(); } else { chooseBranch(choices[currentIndex].dataset.type); }
+      e.preventDefault();
+    }
+  } else {
+    if(e.key==="Enter"||e.key===" "){ showNextLine(); e.preventDefault(); }
+  }
+});
+
+/* 分支选择处理 */
+let firstChat=true;
+function chooseBranch(type){
+  if(type==="none"){ dialogOverlay.style.display="none"; dialogOverlay.setAttribute('aria-hidden','true'); choosing=false; dialogNext.style.display="block"; return; }
+
+  if(type==="notice"){ 
+    currentDialog = dialogTranslations[currentLang].noticeLater; 
+    currentBranch=null;
+  } else if(type==="chat"){ 
+    if(firstChat){ currentDialog = [...dialogTranslations[currentLang].chat]; currentBranch=null; firstChat=false; } 
+    else { 
+      currentBranch = chatBranchTranslations[currentLang][Math.floor(Math.random()*chatBranchTranslations[currentLang].length)];
+      currentDialog = Array.isArray(currentBranch.text)? [...currentBranch.text]: [currentBranch.text];
+    }
+  }
+
+  currentLine=0; choosing=false; dialogNext.style.display="block"; showNextLine();
+}
+
+/* 分支文本读完时渲染选项 */
+function showBranchOptions(){
+  dialogNext.style.display="none";
+  choosing=true;
+  const choiceHtml = `\n<div id="choice-list" style="margin-top:10px;">\n${currentBranch.options.map((o,i)=>`\n<div class="choice" data-index="${i}">${o.label}</div>\n`).join('')}</div>`;
+  dialogText.innerHTML += choiceHtml;
+
+  const choices = document.querySelectorAll("#choice-list .choice");
+  currentIndex=0; choices.forEach(c=>{c.dataset.typeLabel=c.textContent;});
+  updateChoiceHighlight(currentIndex);
+
+  choices.forEach(c=>{
+    c.addEventListener("click", ()=>{
+      branchStep=parseInt(c.dataset.index);
+      let nextData=currentBranch.options[branchStep].next;
+      if(Array.isArray(nextData)){ currentDialog=nextData; currentBranch=null; } 
+      else if(typeof nextData==="object"&&nextData.text){ 
+        currentDialog = Array.isArray(nextData.text)? [...nextData.text]: [nextData.text]; 
+        currentBranch = { text: [], options: nextData.options||null };
+      } else { currentDialog=[String(nextData)]; currentBranch=null; }
+      currentLine=0; choosing=false; dialogNext.style.display="block"; showNextLine();
+    });
+  });
+}
+
+</script>
+</body>
+</html>
