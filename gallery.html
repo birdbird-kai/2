@@ -1114,7 +1114,30 @@ function showBranchOptions(){
     });
   });
 }
+document.addEventListener("DOMContentLoaded", function() {
+    // 禁止选取文字
+    document.body.style.userSelect = "none";
 
+    // 禁止拖拽图片
+    document.querySelectorAll("img").forEach(img => {
+        img.draggable = false;
+    });
+
+    // 禁止右键菜单
+    document.addEventListener("contextmenu", function(e) {
+        e.preventDefault();
+    });
+
+    // 禁止长按（移动端）
+    document.addEventListener("touchstart", function(e) {
+        if (e.target.tagName === "IMG") e.preventDefault();
+    }, {passive: false});
+
+    // 防止拖放
+    document.addEventListener("dragstart", function(e) {
+        e.preventDefault();
+    });
+});
 </script>
 </body>
 </html>
