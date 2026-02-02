@@ -206,9 +206,57 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   width: auto;
   height: auto;
 }
+/* ===== Loading Screen ===== */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: black;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: wait;
+}
+
+.loading-box {
+  text-align: center;
+  color: white;
+  font-family: 'Zpix', monospace;
+}
+
+.loading-text {
+  font-size: 20px;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.loading-bar {
+  width: 240px;
+  height: 12px;
+  border: 2px solid white;
+  box-sizing: border-box;
+}
+
+.loading-progress {
+  height: 100%;
+  width: 0%;
+  background: white;
+  transition: width 0.3s linear;
+}
+
 </style>
 </head>
 <body>
+  <!-- Loading 覆盖层 -->
+<div id="loading">
+  <div class="loading-box">
+    <div class="loading-text">LOADING...</div>
+    <div class="loading-bar">
+      <div class="loading-progress"></div>
+    </div>
+  </div>
+</div>
+
   <div id="language-toggle"></div><script src="lang.js"></script>
   <!-- 左右边框 -->
   <div id="left-border"></div>
@@ -249,7 +297,7 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
       <h3 data-key="colorCommission">彩色委托</h3>
     </div>
     <div class="thumb">
-      <img src="works/thumb3.jpg" alt="委托分类2" onclick="openFolder('folder3', 'category1')">
+      <img src="works/cm.jpg" alt="委托分类2" onclick="openFolder('folder3', 'category1')">
       <h3 data-key="commissionDetails">委托明细</h3>
     </div>
   </div>
@@ -303,7 +351,7 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="category-footer" data-key="fanArea"><h2>同人区</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
-      <img src="works/thumb3.jpg" alt="同人分类1" onclick="openFolder('folder4', 'category2')">
+      <img src="works/同人/t3.jpg" alt="同人分类1" onclick="openFolder('folder4', 'category2')">
       <h3 data-key="illustration">插画</h3>
     </div>
     <div class="thumb">
@@ -390,11 +438,11 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="category-footer"data-key="originalArea"><h2>原创区</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
-      <img src="works/thumb3.jpg" alt="作品分类1" onclick="openFolder('folder7', 'category3')">
+      <img src="works/thumb5.jpg" alt="作品分类1" onclick="openFolder('folder7', 'category3')">
       <h3 data-key="characterBook">角色设定集</h3>
     </div>
     <div class="thumb">
-      <img src="works/thumb3.jpg" alt="作品分类2" onclick="openFolder('folder8', 'category3')">
+      <img src="works/thumb4.jpg" alt="作品分类2" onclick="openFolder('folder8', 'category3')">
       <h3 data-key="illustrationBook">插画合集</h3>
     </div>
   </div>
@@ -405,6 +453,10 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="gallery-grid">
     <img src="works/oc/2.jpg" alt="作品1">
     <img src="works/oc/3.jpg" alt="作品2">
+    <img src="works/oc/辐射1.jpg" alt="作品2">
+    <img src="works/oc/辐射2.jpg" alt="作品2">
+    <img src="works/oc/辐射3.jpg" alt="作品2">
+    <img src="works/oc/辐射4.jpg" alt="作品2">
   </div>
 </div>
 
@@ -1114,6 +1166,45 @@ function showBranchOptions(){
     });
   });
 }
+
+//Loading//
+document.body.classList.add('loading');
+
+const loading = document.getElementById('loading');
+const loadingProgress = document.querySelector('.loading-progress');
+
+const images = Array.from(document.images);
+let loadedCount = 0;
+const totalCount = images.length;
+
+function hideLoading() {
+  setTimeout(() => {
+    loading.style.display = 'none';
+    document.body.classList.remove('loading');
+  }, 500);
+}
+
+function updateProgress() {
+  const percent = totalCount === 0 ? 100 : Math.min(Math.floor((loadedCount / totalCount) * 100), 100);
+  loadingProgress.style.width = percent + '%';
+  if (loadedCount >= totalCount) hideLoading();
+}
+
+images.forEach(img => {
+  if (img.complete) {
+    loadedCount++;
+    updateProgress();
+  } else {
+    img.addEventListener('load', () => { loadedCount++; updateProgress(); }, { once: true });
+    img.addEventListener('error', () => { loadedCount++; updateProgress(); }, { once: true });
+  }
+});
+
+window.addEventListener('load', () => {
+  loadedCount = totalCount;
+  updateProgress();
+});
+
 document.addEventListener("DOMContentLoaded", function() {
     // 禁止选取文字
     document.body.style.userSelect = "none";

@@ -584,8 +584,11 @@ document.addEventListener('keydown', e => {
 // ---------- 电脑端遮罩逻辑（含从 gallery 返回判断） ----------
 // 稳健的 onInitialLoad：先读标志再移除，必要时移除已有遮罩
 function onInitialLoad() {
-  const fromGallery = localStorage.getItem('fromGallery');
+  if (isMobileDevice()) {
+    createMobileBlocker();
+    return;}
 
+  const fromGallery = localStorage.getItem('fromGallery');
   if (fromGallery) {
     // 已从 gallery 返回 —— 清标志并直接显示内容（同时移除可能残留的遮罩）
     localStorage.removeItem('fromGallery');
@@ -601,7 +604,7 @@ function onInitialLoad() {
     createDesktopBlocker();
   }
 }
-
+content.style.display = 'none';
 // 在 DOMContentLoaded 时运行一次（首次打开）
 document.addEventListener('DOMContentLoaded', onInitialLoad);
 
@@ -622,80 +625,49 @@ document.querySelectorAll('#to-gallery, #to-gallery-en').forEach(btn => {
   });
 });
 
-// ---------- 移动端横屏提示（动态创建） ----------
-function showOrientationWarning() {
-  if (document.getElementById('orientation-warning')) return;
-  const warning = document.createElement('div');
-  warning.id = 'orientation-warning';
-  warning.innerHTML = `
-  <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:9999;">
-    <div id="orientation-content" style="text-align:center;max-width:90%;padding:10px;">
-      <h2 id="orientation-title" class="warning-title" style="font-size:1.8rem;line-height:1.3;">
-        ⚠ 建议横屏浏览<br>⚠ Landscape Recommended
-      </h2>
-      <p id="orientation-text" class="warning-text" style="font-size:1.2rem;line-height:1.5;margin:5px 0;margin-top: 5px">
-        竖屏可能显示不完整，横屏体验更佳！<br>
-        Portrait may cut content, landscape works better!
-      </p>
-      <div style="display:flex;flex-direction:column;align-items:center;margin:5px 0;">
-        <img src="images/bow.gif" alt="致歉 Sorry" class="warning-gif" style="width:120px;height:120px;" loading="lazy">
-        <p id="apology-text" class="warning-small-text" style="font-size:1.1rem;line-height:1.5;margin-top:8px;">
-          造成麻烦致歉！<br>Sorry for inconvenience!
-        </p>
-        <p id="tap-hint" class="warning-small-text" style="font-size:1rem; margin-top:0rem;">
-          点击任意空白处进入<br>Tap anywhere to continue
-        </p>
-      </div>
-    </div>
-  </div>`;
-  document.body.appendChild(warning);
+// ---------- 移动端禁止访问（替代横屏提示） ----------
 
-  // 点击整个遮罩继续（仅横屏时生效）
-  warning.addEventListener('click', () => {
-    if (window.innerWidth > window.innerHeight) {
-      warning.remove();
-      const desktopOverlay = document.getElementById('desktop-overlay');
-      if (desktopOverlay) {
-        desktopOverlay.style.display = 'flex';
-      }
-    }
-  });
+// 判断是否为移动端
+function isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
 }
 
-function updateOrientationMessage() {
-  const t = document.getElementById('orientation-title');
-  const txt = document.getElementById('orientation-text');
-  const apology = document.getElementById('apology-text');
-  const tapHint = document.getElementById('tap-hint');
-  if (!t || !txt || !apology || !tapHint) return;
+// 创建移动端禁止访问遮罩
+function createMobileBlocker() {
+  if (document.getElementById('mobile-blocker')) return;
 
-  content.style.transition = "transform 0.3s ease"; // 平滑过渡
+  const blocker = document.createElement('div');
+  blocker.id = 'mobile-blocker';
+  blocker.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: 'Zpix', monospace;
+    text-align: center;
+    user-select: none;
+  `;
 
-  if (window.innerHeight > window.innerWidth) {
-    // 竖屏
-    t.innerHTML = `⚠ 建议横屏浏览<br>⚠ Landscape Recommended`;
-    txt.innerHTML = `竖屏显示存在问题，请横屏体验！<br>Portrait has issues, please use landscape!`;
-    apology.style.display = 'block';
-    tapHint.style.display = 'none'; // 竖屏时不显示「点击任意空白处」
-    content.style.maxWidth = "90%";
-  } else {
-    // 横屏
-    t.innerHTML = `✅ 已切换为横屏<br>✅ Switched to Landscape`;
-    txt.innerHTML = `现在可以进入网站啦！<br>Now you can enter the website!`;
-    apology.style.display = 'none'; // 横屏时隐藏「抱歉」
-    tapHint.style.display = 'block';
-    content.style.maxWidth = "70%";
-  }
+  blocker.innerHTML = `
+    <h2 style="font-size:1.8rem;margin-bottom:1rem;">
+      ⚠ 无法访问
+    </h2>
+    <p style="font-size:1.2rem;line-height:1.6;">
+      本网站仅支持电脑端浏览<br>
+      Please visit on desktop for the best experience
+    </p>
+    <img src="images/bow.gif" 
+         alt="Sorry" 
+         style="width:120px;height:120px;margin-top:24px;image-rendering:pixelated;">
+  `;
+
+  document.body.appendChild(blocker);
 }
-
-function checkOrientation() {
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-  if (isMobile) {
-    showOrientationWarning();
-    updateOrientationMessage();
-  }
-}
-window.addEventListener('resize', updateOrientationMessage); // 监听旋转时更新提示
 
 
 // ---------- DOMContentLoaded 初始化 ----------
@@ -718,9 +690,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 移动端横屏提示
-  checkOrientation();
-  window.addEventListener('resize', checkOrientation);
 
   // 蝴蝶动画
   scheduleNextButterfly();
