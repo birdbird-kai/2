@@ -1278,26 +1278,27 @@ document.body.classList.add('loading');
 const loading = document.getElementById('loading');
 const loadingProgress = document.querySelector('.loading-progress');
 
-// 只统计已有 src 的图片（懒加载图片不在初始计数内）
-const images = Array.from(document.images).filter(img => img.src && !img.src.endsWith(window.location.href));
+// 只追踪首屏必须的 3 张卡片图，加载完即可进场
+// 其余图片（缩略图、角色图等）后台继续加载，不阻塞进度条
+const criticalImages = Array.from(document.querySelectorAll('#gallery .card img'));
 let loadedCount = 0;
-const totalCount = images.length;
+const totalCount = criticalImages.length || 1;
 
 function hideLoading() {
   setTimeout(() => {
     loading.style.display = 'none';
     document.body.classList.remove('loading');
-  }, 500);
+  }, 300);
 }
 
 function updateProgress() {
-  const percent = totalCount === 0 ? 100 : Math.min(Math.floor((loadedCount / totalCount) * 100), 100);
+  const percent = Math.min(Math.floor((loadedCount / totalCount) * 100), 100);
   loadingProgress.style.width = percent + '%';
   if (loadedCount >= totalCount) hideLoading();
 }
 
-images.forEach(img => {
-  if (img.complete) {
+criticalImages.forEach(img => {
+  if (img.complete && img.naturalWidth > 0) {
     loadedCount++;
     updateProgress();
   } else {
@@ -1306,10 +1307,10 @@ images.forEach(img => {
   }
 });
 
-window.addEventListener('load', () => {
-  loadedCount = totalCount;
-  updateProgress();
-});
+// 兜底：如果 3 秒内卡住了，强制放行
+setTimeout(() => {
+  if (loading.style.display !== 'none') hideLoading();
+}, 3000);
 
 </script>
 </body>
