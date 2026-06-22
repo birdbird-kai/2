@@ -24,9 +24,9 @@ const translations = {
     aot: "进击的巨人 - 老兵组",
 
     // 原创子分类
-    originalWorks: "原创作品",
-    characterBook: "角色设定集",
-    illustrationBook: "插画合集"
+    characterBook: "MELAS-角色设定",
+    illustrationBook: "MELAS-插画",
+    manga: "MELAS-漫画（连载中）",
   },
 
   en: {
@@ -51,9 +51,9 @@ const translations = {
     aot: "Attack on Titan - Veterans",
 
     // 原创子分类
-    originalWorks: "Original Works",
-    characterBook: "OCs",
-    illustrationBook: "Illustration"
+    characterBook: "MELAS-Character Design",
+    illustrationBook: "MELAS-Illustration",
+    manga: "MELAS-Comic(Ongoing)",
   }
 };
 

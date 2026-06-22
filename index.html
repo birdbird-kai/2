@@ -137,7 +137,6 @@ img {
   -khtml-user-drag: none;
   -moz-user-drag: none;
   -o-user-drag: none;
-  -webkit-user-drag: none; 
 }
 input, textarea {
   -webkit-user-select: text;
@@ -178,8 +177,9 @@ input, textarea {
     <p data-key="intro2">这里收录了我从某个时期至今的作品！</p>
     <p data-key="intro3">这是我第一次创建完全属于自己的个人网站！我自然是不懂任何有关代码类知识……所以所有有关编程的事几乎都是靠chatgpt完成的！ai真牛逼。。</p>
     <p data-key="intro4">希望网站能激发各位的探索欲，也希望你们能喜欢！</p>
-    <p data-key="intro5">请到处逛逛吧！我很期待各种各样的反馈，我非常非常想继续更新这个网站和作品集！也许会增加更多小动画也说不定</p>
-    <p data-key="intro6">感谢阅读^//^</p>
+    <p data-key="intro5">ps：和黑发女孩闲聊时可以重复尝试几次哦！</p>
+    <p data-key="intro6">请到处逛逛吧！我很期待各种各样的反馈，我非常非常想继续更新这个网站和作品集！也许会增加更多小动画也说不定</p>
+    <p data-key="intro7">感谢阅读^//^</p>
     <img class="menu-gif" src="images/read.gif" alt="小动画">
     <a href="#" class="btn fixed-bottom" onclick="showMenu('homeMenu')" data-key="backToCortex">返回大脑皮层</a>
   </div>
@@ -187,7 +187,8 @@ input, textarea {
   <div class="menu" id="contactMenu" data-lang="zh">
     <h1 data-key="contactMe">联系我</h1>
     <p>Email: xiaoshanji0144@gmail.com</p>
-    <p>Facebook: Birdbird Kai</p>
+    <p>Facebook: Kai Koyamaji</p>
+    <p>Instagram: xiaoshanji_0144</p>
     <hr>
     <h2 data-key="messageBoard">留言板</h2>
     <form id="messageForm">
@@ -210,12 +211,13 @@ input, textarea {
   <div class="menu" id="aboutMenu-en" data-lang="en" style="display:none;">
     <h1 data-key="aboutMe">About Me</h1>
     <img id="avatar-en" src="images/avatar1.jpg" alt="My avatar">
-    <p data-key="intro1">My name is Koyama Kai, you can also call me Kai!</p>
+    <p data-key="intro1">I am Kai Koyamaji, you can also call me Kai!</p>
     <p data-key="intro2">This archive contains my works from a certain period to the present!</p>
     <p data-key="intro3">This is my first time creating a completely personal website! I naturally don't know anything about coding... so almost all programming was done with ChatGPT! AI is amazing..</p>
     <p data-key="intro4">I hope this website sparks your curiosity and enjoy it!</p>
-    <p data-key="intro5">Please look around! I'm looking forward to all kinds of feedback, I really want to continue updating this website and artworks! Maybe I'll add more little animations too</p>
-    <p data-key="intro6">Thanks for reading ^//^</p>
+    <p data-key="intro5">ps: Feel free to keep trying to talk with the black-haired girl.</p>
+    <p data-key="intro6">Please look around! I'm looking forward to all kinds of feedback, I really want to continue updating this website and artworks! Maybe I'll add more little animations too</p>
+    <p data-key="intro7">Thanks for reading ^//^</p>
     <img class="menu-gif" src="images/read.gif" alt="Small animation">
     <a href="#" class="btn fixed-bottom" onclick="showMenu('homeMenu-en')" data-key="backToCortex">Back to Cortex</a>
   </div>
@@ -223,7 +225,8 @@ input, textarea {
   <div class="menu" id="contactMenu-en" data-lang="en" style="display:none;">
     <h1 data-key="contactMe">Contact Me</h1>
     <p>Email: xiaoshanji0144@gmail.com</p>
-    <p>Facebook: Birdbird Kai</p>
+    <p>Facebook: Kai Koyamaji</p>
+    <p>Instagram: xiaoshanji_0144</p>
     <hr>
     <h2 data-key="messageBoard">Message Board</h2>
     <form id="messageForm-en">
@@ -266,13 +269,13 @@ const translations = {
     messageBoard: "Message Board",
     send: "Send",
     backToCortex: "Back to Cortex",
-    intro1: "I'm Koyama Kai! You can also jsut call me Kai.",
+    intro1: "I am Kai Koyamaji! You can also just call me Kai.",
     intro2: "This archive contains my works from a certain period to the present!",
-    intro3: "This is my first time creating a completely personal website! I naturally don't know anything about coding... so almost all programming was done with AI! AI is good with coding..",
+    intro3: "This is my first time creating a completely personal website! I naturally don't know anything about coding... so almost all programming was done with AI! AI is amazing..",
     intro4: "I hope this website sparks your curiosity and that you'll enjoy it!",
     intro5: "ps: Feel free to keep trying to talk with the black-haired girl.",
-    intro5: "Please look around! I'm looking forward to all kinds of feedback, I really want to continue updating this website and portfolio! Maybe I'll add more little animations too",
-    intro6: "Thanks for reading ^//^"
+    intro6: "Please look around! I'm looking forward to all kinds of feedback, I really want to continue updating this website and portfolio! Maybe I'll add more little animations too",
+    intro7: "Thanks for reading ^//^"
   }
 };
 
@@ -515,7 +518,12 @@ function setupMessageBoard(formId, boardId, nicknameId, messageId) {
     board.innerHTML = '';
     messages.forEach((msg,i)=>{
       const div=document.createElement('div'); div.className='message';
-      div.innerHTML = `<span><strong>${msg.nickname}:</strong> ${msg.text}</span>`;
+      const span=document.createElement('span');
+      const strong=document.createElement('strong');
+      strong.textContent = msg.nickname + ':';
+      span.appendChild(strong);
+      span.appendChild(document.createTextNode(' ' + msg.text));
+      div.appendChild(span);
       const delBtn=document.createElement('button'); delBtn.className='delete-btn'; 
       delBtn.textContent = currentLang === 'zh' ? '删除' : 'Delete';
       delBtn.onclick = ()=>{ messages.splice(i,1); localStorage.setItem('messages', JSON.stringify(messages)); renderMessages(); };
@@ -532,12 +540,14 @@ function setupMessageBoard(formId, boardId, nicknameId, messageId) {
     const n = nicknameInput.value.trim();
     const t = messageInput.value.trim();
     if (n && t) { 
-      messages.push({nickname: n, text: t}); 
+      messages.push({nickname: n, text: t});
+      if (messages.length > 100) {
+        messages.shift();
+      }
       localStorage.setItem('messages', JSON.stringify(messages)); 
       renderMessages(); 
       form.reset(); 
     }
-    if (messages.length > 100) messages.shift();
   });
 
   renderMessages();
@@ -697,30 +707,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // （注意：这里不再调用 onInitialLoad，也不再定义 createDesktopBlocker）
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-    // 禁止选取文字
-    document.body.style.userSelect = "none";
-
-    // 禁止拖拽图片
-    document.querySelectorAll("img").forEach(img => {
-        img.draggable = false;
-    });
-
-    // 禁止右键菜单
-    document.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-    });
-
-    // 禁止长按（移动端）
-    document.addEventListener("touchstart", function(e) {
-        if (e.target.tagName === "IMG") e.preventDefault();
-    }, {passive: false});
-
-    // 防止拖放
-    document.addEventListener("dragstart", function(e) {
-        e.preventDefault();
-    });
-});
 </script>
 </body>
 </html>

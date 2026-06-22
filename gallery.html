@@ -98,18 +98,18 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 .category h1 {  text-align: center;  margin-bottom: 20px;  font-size: 28px;}
 
 /* 分类缩略图容器 */
-.thumb { flex: 0 0 auto; width: 250px; text-align: center;  scroll-snap-align: center; }
+.thumb { flex: 0 0 auto; width: 250px; text-align: center; }
 .thumb img { width: 100%; border-radius: 8px; cursor: pointer; transition: transform 0.3s;}
 .thumb img:hover { transform: scale(1.05); }
 .thumb h3 { margin-top: 8px; font-size: 16px; color: #fff; text-align: center;}
 
 /* 分类区缩略图：横向拖动滚动 */
-.gallery-grid { display: flex; justify-content: center;  gap: 32px; overflow-x: auto;  scroll-snap-type: x mandatory; padding: 0 64px 20px; margin-top: 60px; box-sizing: border-box;}
-.gallery-grid img { flex: 0 0 auto; width: 250px; cursor: url('images/pointer.png'); border-radius: 8px; scroll-snap-align: center; transition: none; }
+.gallery-grid { display: flex; justify-content: center;  gap: 32px; overflow-x: auto;  padding: 0 64px 20px; margin-top: 60px; box-sizing: border-box;}
+.gallery-grid img { flex: 0 0 auto; width: 250px; cursor: url('images/pointer.png'); border-radius: 8px; transition: none; }
 
 /* ========= 文件夹内作品展示 ========= */
 /* 文件夹里的作品展示：横向滚动（默认） */
-.folder .gallery-grid {  display: flex; gap: 32px;overflow-x: auto; scroll-snap-type: x mandatory; margin: 100px 64px 20px; margin-top: 100px;  box-sizing: border-box;justify-content: flex-start;}
+.folder .gallery-grid {  display: flex; gap: 32px;overflow-x: auto; margin: 100px 64px 20px; margin-top: 100px;  box-sizing: border-box;justify-content: flex-start;}
 
 /* 每张作品图 */
 .folder .gallery-grid img { flex: 0 0 auto;  max-height: 400px;  height: auto;  width: auto;   object-fit: contain;  border-radius: 8px; cursor: url('images/pointer.png'); transition: transform 0.3s; scroll-snap-align: center; }
@@ -257,7 +257,13 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   </div>
 </div>
 
-  <div id="language-toggle"></div><script src="lang.js"></script>
+  <div id="language-toggle"></div>
+  <!-- lang.js 负责语言切换；若文件不存在则退回 localStorage 或预设中文 -->
+  <script>
+    // 提前读取语言设定，确保后续脚本在 lang.js 加载失败时也有 currentLang 可用
+    try { window.currentLang = localStorage.getItem('language') || 'zh'; } catch(e) { window.currentLang = 'zh'; }
+  </script>
+  <script src="lang.js" onerror="console.warn('lang.js 未找到，语言切换功能可能无效')"></script>
   <!-- 左右边框 -->
   <div id="left-border"></div>
   <div id="right-border"></div>
@@ -297,7 +303,7 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
       <h3 data-key="colorCommission">彩色委托</h3>
     </div>
     <div class="thumb">
-      <img src="works/cm.jpg" alt="委托分类2" onclick="openFolder('folder3', 'category1')">
+      <img src="works/cm.jpg" alt="委托分类3" onclick="openFolder('folder3', 'category1')">
       <h3 data-key="commissionDetails">委托明细</h3>
     </div>
   </div>
@@ -351,7 +357,7 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="category-footer" data-key="fanArea"><h2>同人区</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
-      <img src="works/同人/t3.jpg" alt="同人分类1" onclick="openFolder('folder4', 'category2')">
+      <img src="works/thumb3.jpg" alt="同人分类1" onclick="openFolder('folder4', 'category2')">
       <h3 data-key="illustration">插画</h3>
     </div>
     <div class="thumb">
@@ -359,7 +365,7 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
       <h3 data-key="mp100">灵能百分百-茂灵</h3>
     </div>
     <div class="thumb">
-      <img src="works/aot/老兵组.jpg" alt="同人分类2" onclick="openFolder('folder6', 'category2')">
+      <img src="works/aot/老兵组.jpg" alt="同人分类3" onclick="openFolder('folder6', 'category2')">
       <h3 data-key="aot">进击的巨人-老兵组</h3>
     </div>
   </div>
@@ -368,19 +374,12 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 <!-- 文件夹内容（同人区子项） -->
 <div id="folder4" class="folder" style="display:none;">
   <div class="gallery-grid">
-    <img src="works/同人/t1.png" alt="同人作品1">
-    <img src="works/同人/t2.jpg" alt="同人作品1">
-    <img src="works/同人/t3.jpg" alt="同人作品1">
-    <img src="works/同人/t4.jpg" alt="同人作品1">
-    <img src="works/同人/t5.jpg" alt="同人作品1">
-    <img src="works/同人/t6.jpg" alt="同人作品1">
-    <img src="works/同人/t7.jpg" alt="同人作品1">
-    <img src="works/同人/t8.jpg" alt="同人作品1">
-    <img src="works/同人/t9.jpg" alt="同人作品1">
-    <img src="works/同人/t10.jpg" alt="同人作品1">
-    <img src="works/同人/t11.jpg" alt="同人作品1">
-    <img src="works/同人/t12.jpg" alt="同人作品1">
-    <img src="works/同人/t13.jpg" alt="同人作品1">
+    <img src="works/thumb3.jpg" alt="同人作品1">
+    <img src="works/同人/mouthwashing/1.jpg" alt="同人作品1"><img src="works/同人/mouthwashing/2.jpg" alt="同人作品1"><img src="works/同人/mouthwashing/3.jpg" alt="同人作品1">
+    <img src="works/同人/毒师/1.jpg" alt="同人作品1"> <img src="works/同人/毒师/2.jpg" alt="同人作品1"><img src="works/同人/毒师/3.jpg" alt="同人作品1">
+    <img src="works/同人/毒师/4.jpg" alt="同人作品1"><img src="works/同人/毒师/5.jpg" alt="同人作品1"><img src="works/同人/毒师/6.jpg" alt="同人作品1">
+    <img src="works/同人/毒师/7.jpg" alt="同人作品1"><img src="works/同人/毒师/8.jpg" alt="同人作品1"><img src="works/同人/毒师/9.jpg" alt="同人作品1">
+    <img src="works/同人/UT/1.png" alt="同人作品1"><img src="works/同人/UT/2.jpg" alt="同人作品1"><img src="works/同人/UT/3.jpg" alt="同人作品1">  
   </div>
 </div>
 
@@ -439,11 +438,15 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="gallery-grid">
     <div class="thumb">
       <img src="works/thumb5.jpg" alt="作品分类1" onclick="openFolder('folder7', 'category3')">
-      <h3 data-key="characterBook">角色设定集</h3>
+      <h3 data-key="characterBook">MELAS-角色设定</h3>
     </div>
     <div class="thumb">
       <img src="works/thumb4.jpg" alt="作品分类2" onclick="openFolder('folder8', 'category3')">
-      <h3 data-key="illustrationBook">插画合集</h3>
+      <h3 data-key="illustrationBook">MELAS-插画合集</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/oc/漫画/1.jpg" alt="作品分类3" onclick="openFolder('folder9', 'category3')">
+      <h3 data-key="manga">MELAS-漫画(连载中)</h3>
     </div>
   </div>
 </div>
@@ -451,21 +454,40 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 <!-- 文件夹内容（原创区子项） -->
 <div id="folder7" class="folder" style="display:none;">
   <div class="gallery-grid">
+    <img src="works/oc/1.jpg" alt="作品1">
     <img src="works/oc/2.jpg" alt="作品1">
-    <img src="works/oc/3.jpg" alt="作品2">
-    <img src="works/oc/辐射1.jpg" alt="作品2">
-    <img src="works/oc/辐射2.jpg" alt="作品2">
-    <img src="works/oc/辐射3.jpg" alt="作品2">
-    <img src="works/oc/辐射4.jpg" alt="作品2">
+    <img src="works/oc/辐射1.jpg" alt="作品1">
+    <img src="works/oc/辐射2.jpg" alt="作品1">
+    <img src="works/oc/辐射3.jpg" alt="作品1">
+    <img src="works/oc/辐射4.jpg" alt="作品1">
   </div>
 </div>
 
 <div id="folder8" class="folder" style="display:none;">
   <div class="gallery-grid">
-    <img src="works/oc/ailet.jpg" alt="作品3">
-    <img src="works/oc/kyouji.jpg" alt="作品3">
-    <img src="works/oc/luis.jpg" alt="作品3">
-    <img src="works/oc/asher.jpg" alt="作品3">
+    <img src="works/oc/插图1.jpg" alt="作品2">
+    <img src="works/oc/插图2.jpg" alt="作品2">
+    <img src="works/oc/插图3.jpg" alt="作品2">
+    <img src="works/oc/插图4.jpg" alt="作品2">
+  </div>
+</div>
+
+<div id="folder9" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img src="works/oc/漫画/1.jpg" alt="作品3"><img src="works/oc/漫画/2.jpg" alt="作品3"><img src="works/oc/漫画/3.jpg" alt="作品3">
+    <img src="works/oc/漫画/4.jpg" alt="作品3"><img src="works/oc/漫画/5.jpg" alt="作品3"><img src="works/oc/漫画/6.jpg" alt="作品3">
+    <img src="works/oc/漫画/7.jpg" alt="作品3"><img src="works/oc/漫画/8.jpg" alt="作品3"><img src="works/oc/漫画/9.jpg" alt="作品3">
+    <img src="works/oc/漫画/10.jpg" alt="作品3"><img src="works/oc/漫画/11.jpg" alt="作品3"><img src="works/oc/漫画/12.jpg" alt="作品3">
+    <img src="works/oc/漫画/13.jpg" alt="作品3"><img src="works/oc/漫画/14.jpg" alt="作品3"><img src="works/oc/漫画/15.jpg" alt="作品3">
+    <img src="works/oc/漫画/16.jpg" alt="作品3"><img src="works/oc/漫画/17.jpg" alt="作品3"><img src="works/oc/漫画/18.jpg" alt="作品3">
+    <img src="works/oc/漫画/19.jpg" alt="作品3"><img src="works/oc/漫画/20.jpg" alt="作品3"><img src="works/oc/漫画/21.jpg" alt="作品3">
+    <img src="works/oc/漫画/23.jpg" alt="作品3"><img src="works/oc/漫画/24.jpg" alt="作品3"><img src="works/oc/漫画/25.jpg" alt="作品3">
+    <img src="works/oc/漫画/26.jpg" alt="作品3"><img src="works/oc/漫画/27.jpg" alt="作品3"><img src="works/oc/漫画/28.jpg" alt="作品3">
+    <img src="works/oc/漫画/29.jpg" alt="作品3"><img src="works/oc/漫画/30.jpg" alt="作品3"><img src="works/oc/漫画/31.jpg" alt="作品3">
+    <img src="works/oc/漫画/32.jpg" alt="作品3"><img src="works/oc/漫画/33.jpg" alt="作品3"><img src="works/oc/漫画/34.jpg" alt="作品3">
+    <img src="works/oc/漫画/35.jpg" alt="作品3"><img src="works/oc/漫画/36.jpg" alt="作品3"><img src="works/oc/漫画/37.jpg" alt="作品3">
+    <img src="works/oc/漫画/38.jpg" alt="作品3"><img src="works/oc/漫画/39.jpg" alt="作品3"><img src="works/oc/漫画/40.jpg" alt="作品3">
+    <img src="works/oc/漫画/41.jpg" alt="作品3"><img src="works/oc/漫画/42.jpg" alt="作品3"><img src="works/oc/漫画/43.jpg" alt="作品3">
   </div>
 </div>
 
@@ -539,6 +561,8 @@ let currentImages = [];  // 当前文件夹的所有图片
 let currentIndex = 0;
 let currentFolderId = null;
 let lastCategoryId = null;
+const hoverSound = document.getElementById('hoverSound');
+const selectSound = document.getElementById('selectSound');
 hoverSound.volume = 0.6;
 selectSound.volume = 0.6;
 
@@ -715,7 +739,80 @@ function playClick() {
   } catch (e) {} 
 }
 
-/* === BGM 播放列表 === */
+/* === Gallery 页面内联翻译（补充 lang.js 未覆盖的 key） === */
+const galleryTranslations = {
+  zh: {
+    backToIndex:      "返回大脑皮层",
+    musicTooltip:     "单击播放/暂停 · 长按切歌",
+    back:             "返回",
+    commissionArea:   "委托区",
+    fanArea:          "同人区",
+    originalArea:     "原创区",
+    bwCommission:     "黑白委托",
+    colorCommission:  "彩色委托",
+    commissionDetails:"委托明细",
+    illustration:     "插画",
+    mp100:            "灵能百分百-茂灵",
+    aot:              "进击的巨人-老兵组",
+    characterBook:    "MELAS-角色设定",
+    illustrationBook: "MEALS-插画合集"
+  },
+  en: {
+    backToIndex:      "Back to Cerebral Cortex",
+    musicTooltip:     "Click to play/pause · Long press to skip",
+    back:             "Back",
+    commissionArea:   "Commissions",
+    fanArea:          "Fandom",
+    originalArea:     "Original Works",
+    bwCommission:     "B&W Commissions",
+    colorCommission:  "Color Commissions",
+    commissionDetails:"Commission Details",
+    illustration:     "Illustration",
+    mp100:            "Mob Psycho 100 - MobRei",
+    aot:              "Attack on Titan - Veterans",
+    characterBook:    "MELAS-Character Design",
+    illustrationBook: "MELAS-Illustration Collection"
+  }
+};
+
+function applyGalleryTranslations() {
+  const lang = (typeof currentLang !== 'undefined' ? currentLang : null)
+            || (typeof window.currentLang !== 'undefined' ? window.currentLang : null)
+            || localStorage.getItem('language') || 'zh';
+  const t = galleryTranslations[lang] || galleryTranslations.zh;
+  document.querySelectorAll('[data-key]').forEach(el => {
+    const key = el.getAttribute('data-key');
+    if (t[key] !== undefined) {
+      if (el.tagName === 'H2' || el.tagName === 'H3') {
+        el.textContent = t[key];
+      } else {
+        el.textContent = t[key];
+      }
+    }
+  });
+  // 更新语言切换按钮图标
+  const langToggle = document.getElementById('language-toggle');
+  if (langToggle) langToggle.classList.toggle('en', lang === 'en');
+}
+
+/* 页面加载时应用一次 */
+window.addEventListener('load', applyGalleryTranslations);
+
+/* 监听语言切换按钮，切换后立即重新应用 */
+document.addEventListener('DOMContentLoaded', () => {
+  const langToggle = document.getElementById('language-toggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', () => {
+      // 切换 currentLang
+      const cur = (typeof currentLang !== 'undefined' ? currentLang : null)
+               || localStorage.getItem('language') || 'zh';
+      const next = cur === 'zh' ? 'en' : 'zh';
+      try { localStorage.setItem('language', next); } catch(e) {}
+      if (typeof window.currentLang !== 'undefined') window.currentLang = next;
+      applyGalleryTranslations();
+    });
+  }
+});
 const playlist = [
   "sounds/作品集bgm/adventure.mp3",
   "sounds/作品集bgm/目覚めの村.mp3",
@@ -1205,30 +1302,6 @@ window.addEventListener('load', () => {
   updateProgress();
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-    // 禁止选取文字
-    document.body.style.userSelect = "none";
-
-    // 禁止拖拽图片
-    document.querySelectorAll("img").forEach(img => {
-        img.draggable = false;
-    });
-
-    // 禁止右键菜单
-    document.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-    });
-
-    // 禁止长按（移动端）
-    document.addEventListener("touchstart", function(e) {
-        if (e.target.tagName === "IMG") e.preventDefault();
-    }, {passive: false});
-
-    // 防止拖放
-    document.addEventListener("dragstart", function(e) {
-        e.preventDefault();
-    });
-});
 </script>
 </body>
 </html>
