@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
 <title>作品集</title>
 <style> 
 /* === 字体 === */
@@ -1311,6 +1312,9 @@ criticalImages.forEach(img => {
 setTimeout(() => {
   if (loading.style.display !== 'none') hideLoading();
 }, 3000);
+
+document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
+document.addEventListener('dragstart', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
 
 </script>
 </body>
