@@ -113,17 +113,42 @@ html, body { margin:0; padding:0; width:100%; height:100%; background:black; fon
 .delete-btn { display:none; background:crimson; color:#fff; border:none; margin-left:10px; padding:2px 6px; cursor:pointer; font-size:12px; border-radius:3px; }
 .admin .delete-btn { display:inline; }
 
-/* 移动端横屏提醒 */
-.mobile-warning { display:flex; justify-content:center; align-items:center; height:100vh; background:black; color:white; font-family:'Zpix',monospace; text-align:center; padding:20px; }
-.mobile-warning h2 { font-size:1.8rem; margin-bottom:1.5rem; }
-.mobile-warning p { font-size:1.2rem; margin-bottom:1.5rem; }
-.warning-gif img { image-rendering:pixelated; display:block; margin:0 auto; }
-#orientation-content { color:white; font-family:'Zpix',monospace; text-align:center; padding:20px; transform-origin:center center; transform:translateY(-5vh); }
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  #left-border, #right-border { width: 32px; background-size: 32px auto; }
+  .center-frame {
+    padding: 0 32px;
+    background-size: 32px, 32px;
+  }
+  #center-gif { max-width: calc(100vw - 64px - 20px); }
+  .menu { width: calc(100vw - 80px); max-width: 320px; max-height: 75vh; padding: 12px 12px 8px; }
+  .menu h1 { font-size: 14px; margin-bottom: 14px; }
+  .menu p { font-size: 12px; }
+  .btn { padding: 8px; font-size: 13px; }
+  #menu-icon { left: 42px; width: 48px; height: 48px; }
+  #music-btn { right: 42px; width: 34px; height: 34px; }
+  #language-toggle { right: 42px; width: 40px; height: 40px; top: 14px; }
+  .menu img#avatar, .menu img#avatar-en { width: 90px; }
+}
+
+@media (max-width: 480px) {
+  #left-border, #right-border { display: none; }
+  .center-frame {
+    padding: 0;
+    background-image: none;
+  }
+  #center-gif { max-width: 100vw; }
+  .menu { width: calc(100vw - 32px); max-width: none; left: 50%; transform: translate(-50%, -50%); }
+  #menu-icon { left: 12px; width: 44px; height: 44px; bottom: 14px; }
+  #music-btn { right: 12px; width: 32px; height: 32px; bottom: 14px; }
+  #language-toggle { right: 12px; top: 12px; width: 36px; height: 36px; }
+  #butterfly { max-width: 100vw; }
+}
 
 /* 遮罩层（保留样式以便 JS 动态创建的元素匹配） */
 #desktop-blocker { position:fixed; top:0; left:0; right:0; bottom:0; background:black; display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:9999; }
 #desktop-blocker img { width:200px; height:200px; margin-bottom:30px; image-rendering:pixelated; }
-#desktop-continue { padding:20px 40px; font-size:2rem; font-family:'Zpix',monospace; border:4px solid white; background:black; color:white; cursor:pointer; box-shadow:0 0 0 4px black, 0 0 0 8px white; transition: transform 0.15s;  cursor: url('images/pointer.png') 2 2, pointer; }
+#desktop-continue { padding:20px 40px; font-size:clamp(1.2rem, 5vw, 2rem); font-family:'Zpix',monospace; border:4px solid white; background:black; color:white; cursor:pointer; box-shadow:0 0 0 4px black, 0 0 0 8px white; transition: transform 0.15s;  cursor: url('images/pointer.png') 2 2, pointer; }
 #desktop-continue:hover { background:white; color:black; transform:scale(1.05); box-shadow:0 0 0 4px black,0 0 0 8px white,0 0 10px #fffacd;  cursor: url('images/pointer.png') 2 2, pointer; }
 
 /* 禁止文字与图片被选中、禁止拖拽 */
@@ -592,16 +617,10 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ---------- 电脑端遮罩逻辑（含从 gallery 返回判断） ----------
-// 稳健的 onInitialLoad：先读标志再移除，必要时移除已有遮罩
+// ---------- 入口遮罩逻辑（含从 gallery 返回判断） ----------
 function onInitialLoad() {
-  if (isMobileDevice()) {
-    createMobileBlocker();
-    return;}
-
   const fromGallery = localStorage.getItem('fromGallery');
   if (fromGallery) {
-    // 已从 gallery 返回 —— 清标志并直接显示内容（同时移除可能残留的遮罩）
     localStorage.removeItem('fromGallery');
     document.getElementById('desktop-blocker')?.remove();
     content.style.display = 'block';
@@ -610,7 +629,6 @@ function onInitialLoad() {
     return;
   }
 
-  // 非从 gallery 返回：如果尚未显示主内容则创建遮罩（createDesktopBlocker 自身有去重保护）
   if (!document.getElementById('desktop-blocker') && content.style.display !== 'block') {
     createDesktopBlocker();
   }
@@ -635,51 +653,6 @@ document.querySelectorAll('#to-gallery, #to-gallery-en').forEach(btn => {
     // 不要在这里清掉标志 —— 让首页自己读并清除
   });
 });
-
-// ---------- 移动端禁止访问（替代横屏提示） ----------
-
-// 判断是否为移动端
-function isMobileDevice() {
-  return /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-}
-
-// 创建移动端禁止访问遮罩
-function createMobileBlocker() {
-  if (document.getElementById('mobile-blocker')) return;
-
-  const blocker = document.createElement('div');
-  blocker.id = 'mobile-blocker';
-  blocker.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: black;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-family: 'Zpix', monospace;
-    text-align: center;
-    user-select: none;
-  `;
-
-  blocker.innerHTML = `
-    <h2 style="font-size:1.8rem;margin-bottom:1rem;">
-      ⚠ 无法访问
-    </h2>
-    <p style="font-size:1.2rem;line-height:1.6;">
-      本网站仅支持电脑端浏览<br>
-      Please visit on desktop for the best experience
-    </p>
-    <img src="images/bow.gif" 
-         alt="Sorry" 
-         style="width:120px;height:120px;margin-top:24px;image-rendering:pixelated;">
-  `;
-
-  document.body.appendChild(blocker);
-}
-
 
 // ---------- DOMContentLoaded 初始化 ----------
 window.addEventListener('DOMContentLoaded', () => {

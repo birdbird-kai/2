@@ -77,12 +77,11 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 /* 悬停时层级 */
 .card:hover { z-index: 100; transform: none;}
 
-/* === 悬停暗化逻辑 === */
-/* 鼠标进入 gallery 时，先把所有卡片暗掉 */
-#gallery:hover .card { filter: brightness(0.5);}
-
-/* 只有悬停的那一张恢复亮度 */
-#gallery:hover .card:hover { filter: brightness(1);}
+/* === 悬停暗化逻辑（仅有鼠标的设备） === */
+@media (hover: hover) and (pointer: fine) {
+  #gallery:hover .card { filter: brightness(0.5); }
+  #gallery:hover .card:hover { filter: brightness(1); }
+}
 
 /* 卡片标签 */
 .card-label { position: absolute; bottom: 12px;  left: 50%;  transform: translateX(-50%) translateY(0);  background: rgba(0, 0, 0, 0.75);color: white; padding: 8px 16px;  border-radius: 8px;
@@ -95,8 +94,28 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 .card:nth-child(3) { z-index: 1; }
 
 /* 分类区容器 */
-.category {  display: none;  padding: 20px 40px; animation: fadeIn 0.5s ease forwards;}
+.category {  display: none;  padding: 20px 40px; animation: fadeIn 0.5s ease forwards; box-sizing: border-box; }
 .category h1 {  text-align: center;  margin-bottom: 20px;  font-size: 28px;}
+
+/* 手机端分类页：整体允许滚动，标题固定在上方 */
+@media (max-width: 768px) {
+  .category {
+    padding: 10px 0 20px;
+    min-height: 100vh;
+  }
+  .category-footer {
+    position: sticky;
+    top: 0;
+    background: black;
+    z-index: 10;
+    padding: 12px 0 8px;
+    text-align: center;
+  }
+  .category-footer h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+}
 
 /* 分类缩略图容器 */
 .thumb { flex: 0 0 auto; width: 250px; text-align: center; }
@@ -163,41 +182,100 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   #back-home { left: 60px; width: 40px; height: 40px; }
   #menu-icon { left: 60px; width: 48px; height: 48px; }
   #music-btn { right: 60px; width: 32px; height: 32px; }
-  #dialog-icon { right: 55px; width: 48px; height: 48px; bottom: 66px; } /* 音乐键上方 */
+  #dialog-icon { right: 55px; width: 48px; height: 48px; bottom: 66px; }
   #backBtn { right: 60px; font-size: 13px; padding: 5px 12px; }
   .folder .gallery-grid img { max-width: 80%; max-height: 320px; height: auto; }
 }
 
 /* 平板 / 手机横屏 */
 @media (max-width: 768px) {
-  .card { width: 80vw; margin: 0 10px; }
-  .card-label { font-size: 14px; padding: 6px 12px; }
-  .thumb { width: 180px; }
-  .thumb h3 { font-size: 14px; }
-  .folder .gallery-grid { margin: 80px 20px 20px; gap: 20px; }
+  #left-border, #right-border { width: 32px; background-size: 32px auto; }
+  #language-toggle { left: 42px; width: 40px; height: 40px; top: 14px; }
+  #backBtn { right: 42px; font-size: 12px; padding: 4px 10px; top: 14px; }
+  #menu-icon { left: 42px; width: 44px; height: 44px; bottom: 14px; }
+  #music-btn { right: 42px; width: 30px; height: 30px; bottom: 14px; }
+  #dialog-icon { right: 42px; width: 40px; height: 40px; bottom: 56px; }
+
+  /* 三张卡片：竖向堆叠，居中排列 */
+  #gallery {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    gap: 16px;
+    padding: 40px 0 80px;
+  }
+  .card { width: 72vw; margin: 0; aspect-ratio: 610 / 778; }
+  .card-label { font-size: 14px; padding: 6px 12px; opacity: 1; transform: translateX(-50%) translateY(-8px); }
+
+  /* 分类页缩略图：手机端改为纵向排列，上下滑动 */
+  .category .gallery-grid {
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    gap: 24px;
+    padding: 16px 20px 40px;
+    margin-top: 20px;
+    max-height: calc(100vh - 100px);
+  }
+  .thumb { width: 80vw; max-width: 320px; display: flex; flex-direction: column; align-items: center; }
+  .thumb h3 { font-size: 14px; margin-top: 10px; }
+  .thumb img { max-width: 100%; max-height: 200px; height: auto; object-fit: contain; border-radius: 8px; }
+  /* 文件夹内图片保持横向滚动不变 */
+  .folder .gallery-grid { gap: 20px; padding: 0 40px 20px; margin-top: 50px; flex-direction: row; overflow-x: auto; overflow-y: hidden; max-height: none; }
+
+  /* 文件夹内图片 */
+  .folder .gallery-grid { margin: 70px 20px 20px; gap: 20px; }
   .folder .gallery-grid img { max-width: 100%; max-height: 260px; height: auto; }
-  #music-btn { right: 40px; width: 28px; height: 28px; }
-  #dialog-icon { right: 40px; width: 40px; height: 40px; bottom: 60px; }
-  .thumb { width: 160px; }
-  .thumb img { max-width: 80%;  max-height: 160px;  height: auto;  object-fit: contain; }
-  .gallery-grid img {  max-width: 80%;  max-height: 180px; height: auto;  object-fit: contain; }
+
+  /* 对话框适配 */
+  #dialog-overlay { padding: 8px; align-items: flex-end; }
+  #dialog-box { flex-direction: column; align-items: center; margin-left: 0; margin-bottom: 0; width: 100%; }
+  #char-img { position: static; max-width: 45vw; max-height: 35vh; margin-bottom: -10px; transform: none; left: auto; bottom: auto; }
+  #dialog-frame { width: 92vw; max-width: none; }
+  #dialog-text { font-size: clamp(11px, 3vw, 15px); }
 }
 
 /* 小屏手机竖屏 */
 @media (max-width: 480px) {
-  #left-border, #right-border { display: none; } /* 边框隐藏，腾空间 */
+  #left-border, #right-border { display: none; }
+  #language-toggle { left: 12px; top: 12px; width: 36px; height: 36px; }
   #back-home { left: 10px; top: 10px; width: 32px; height: 32px; }
-  #menu-icon { left: 10px; bottom: 10px; width: 40px; height: 40px; }
-  #music-btn { right: 10px; bottom: 10px; width: 28px; height: 28px; }
-  #dialog-icon { right: 10px; bottom: 60px; width: 36px; height: 36px; } /* 紧跟音乐键上方 */
-  #backBtn { right: 10px; top: 10px; font-size: 12px; padding: 4px 10px; }
-  .card { width: 90vw; margin: 0 5px; }
-  .card-label { font-size: 12px; }
-  .folder .gallery-grid { margin: 60px 10px 20px; gap: 16px; }
+  #menu-icon { left: 12px; bottom: 12px; width: 40px; height: 40px; }
+  #music-btn { right: 12px; bottom: 12px; width: 28px; height: 28px; }
+  #dialog-icon { right: 12px; bottom: 54px; width: 36px; height: 36px; }
+  #backBtn { right: 12px; top: 12px; font-size: 11px; padding: 4px 8px; }
+
+  #gallery { gap: 12px; padding: 36px 0 80px; }
+  .card { width: 82vw; }
+  /* 手机竖屏卡片标签常态可见（无 hover） */
+  .card-label { opacity: 1; font-size: 12px; transform: translateX(-50%) translateY(-6px); }
+
+  /* 小屏手机：分类页缩略图纵向排列 */
+  .category .gallery-grid {
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    gap: 20px;
+    padding: 12px 16px 40px;
+    margin-top: 10px;
+    max-height: calc(100vh - 80px);
+  }
+  .thumb { width: 85vw; max-width: 300px; }
+  .thumb img { max-width: 100%; max-height: 180px; object-fit: contain; border-radius: 8px; }
+  /* 文件夹内图片保持横向滚动 */
+  .folder .gallery-grid { flex-direction: row; overflow-x: auto; overflow-y: hidden; max-height: none; gap: 14px; padding: 0 16px 20px; margin-top: 40px; }
+
+  .folder .gallery-grid { margin: 52px 10px 20px; gap: 14px; }
   .folder .gallery-grid img { max-width: 100%; max-height: 200px; height: auto; }
-  .thumb { width: 120px; }
-  .thumb img {  max-width: 80%;  max-height: 100px;  height: auto;  object-fit: contain; }
-  .gallery-grid img { max-width: 80%; max-height: 140px; height: auto; object-fit: contain; }
+
+  #char-img { max-width: 55vw; max-height: 30vh; }
+  #dialog-frame { width: 96vw; }
+  #dialog-text { font-size: clamp(10px, 3.2vw, 14px); }
 }
 
 /* Lightbox 图片在任何屏幕都不超出视口 */
@@ -628,9 +706,12 @@ cards.forEach(card => {
     const targetId = card.dataset.target;
     gallery.style.display = "none";
     document.getElementById(targetId).style.display = "block";
-    lastCategoryId = targetId;   // 记录分类ID
-    currentFolderId = null;      // 确保不是文件夹
-    backBtn.style.display = "block"; // 显示返回按钮
+    lastCategoryId = targetId;
+    currentFolderId = null;
+    backBtn.style.display = "block";
+    // 手机上允许页面滚动以浏览分类内容
+    document.body.style.overflow = "auto";
+    document.documentElement.style.overflow = "auto";
   });
 });
 
@@ -642,7 +723,6 @@ function openFolder(folderId, categoryId) {
   const folderEl = document.getElementById(folderId);
   folderEl.style.display = "block";
 
-  // 懒加载：此时才把 data-src 赋值给 src
   folderEl.querySelectorAll("img[data-src]").forEach(img => {
     img.src = img.dataset.src;
     img.removeAttribute("data-src");
@@ -651,7 +731,9 @@ function openFolder(folderId, categoryId) {
   currentFolderId = folderId;
   lastCategoryId = categoryId;
 
-  backBtn.style.display = "block"; // 显示返回按钮
+  backBtn.style.display = "block";
+  document.body.style.overflow = "auto";
+  document.documentElement.style.overflow = "auto";
 }
 
 /* =====================
@@ -673,7 +755,10 @@ backBtn.addEventListener("click", () => {
     document.getElementById(lastCategoryId).style.display = "none";
     gallery.style.display = "flex";
     lastCategoryId = null;
-    backBtn.style.display = "none"; // 返回到首页后隐藏按钮
+    backBtn.style.display = "none";
+    // 返回首页时恢复 overflow:hidden
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
   }
 });
 /* =====================
