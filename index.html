@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 @font-face { font-family: 'Zpix'; src: url('zpix.ttf') format('truetype'); }
-html, body { margin:0; padding:0; width:100%; height:100%; background:black; font-family:'Zpix',monospace; cursor:url('images/pointer2.png') 4 4, pointer; overflow:hidden; }
+html, body { margin:0; padding:0; width:100%; height:100%; background:black; font-family:'Zpix',monospace; cursor:url('images/pointer2.png') 4 4, pointer; overflow:hidden; -webkit-tap-highlight-color: transparent; }
 
 /* 左右边框 */
 #left-border, #right-border { position:fixed; top:0; bottom:0; width:64px; background-repeat:repeat-y; background-size:64px auto; z-index:5; }
@@ -150,6 +150,9 @@ html, body { margin:0; padding:0; width:100%; height:100%; background:black; fon
 #desktop-blocker img { width:200px; height:200px; margin-bottom:30px; image-rendering:pixelated; }
 #desktop-continue { padding:20px 40px; font-size:clamp(1.2rem, 5vw, 2rem); font-family:'Zpix',monospace; border:4px solid white; background:black; color:white; cursor:pointer; box-shadow:0 0 0 4px black, 0 0 0 8px white; transition: transform 0.15s;  cursor: url('images/pointer.png') 2 2, pointer; }
 #desktop-continue:hover { background:white; color:black; transform:scale(1.05); box-shadow:0 0 0 4px black,0 0 0 8px white,0 0 10px #fffacd;  cursor: url('images/pointer.png') 2 2, pointer; }
+
+/* 消除手机点击蓝色高亮 */
+*, *::before, *::after { -webkit-tap-highlight-color: transparent; }
 
 /* 禁止文字与图片被选中、禁止拖拽 */
 body {
@@ -314,19 +317,7 @@ function toggleLanguage() {
   // 更新界面文字
   updateLanguage();
 
-  // 更新对话数据（重置到该语言的初始状态）
-  currentDialog = dialogTranslations[currentLang].noticeFirst;
-  currentBranch = chatBranchTranslations[currentLang];
-  currentLine = 0;
-  choosing = false;
 
-  // 清空对话框里的内容
-  dialogText.innerHTML = "";
-  if (typingTimer) clearTimeout(typingTimer);
-  isTyping = false;
-
-  // 重新开始第一句对话
-  showNextLine();
 }
 
 // 修复：更新界面语言（简化并稳定菜单显示逻辑） 
@@ -646,16 +637,8 @@ window.addEventListener('pageshow', (event) => {
 // 处理 popstate（如果你有用 history API 的情况也能覆盖）
 window.addEventListener('popstate', onInitialLoad);
 
-// 确保去 gallery 的按钮先写入标志（你已有这段就不用改）
-document.querySelectorAll('#to-gallery, #to-gallery-en').forEach(btn => {
-  btn.addEventListener('click', () => {
-    localStorage.setItem('fromGallery', 'true');
-    // 不要在这里清掉标志 —— 让首页自己读并清除
-  });
-});
-
 // ---------- DOMContentLoaded 初始化 ----------
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   // 语言切换按钮
   document.getElementById('language-toggle').addEventListener('click', toggleLanguage);
 
