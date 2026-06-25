@@ -26,7 +26,6 @@ html, body {margin: 0;  padding: 0;  width: 100%;  height: 100%;  background: bl
 #music-btn {  right: 84px;  width: 40px;   height: 40px;  background: url('images/music-off.png') no-repeat center center;  background-size: contain;  cursor: url('images/pointer.png') 2 2, pointer;  image-rendering: pixelated;}
 #music-btn.playing { background-image: url('images/music-on.png'); }
 #menu-icon:hover, #music-btn:hover {   transform: scale(1.1);   filter: drop-shadow(0 0 6px white); }
-#menu-icon.broken, #music-btn.broken { background: red !important; }
 
 /* === 菜单弹窗 === */
 .menu {  display: none;  position: fixed;  top: 50%;   left: 50%;  transform: translate(-50%, -50%);  background: black;  border: 4px solid white;  padding: 20px;  z-index: 30;  width: 300px;  text-align: center;  color: white;  font-size: 18px;}
@@ -50,7 +49,7 @@ html, body {margin: 0;  padding: 0;  width: 100%;  height: 100%;  background: bl
 
 /* 半透明蒙版 */
 #dialog-frame::after {  content: "";  position: absolute;  inset: 0;  background: rgba(0,0,0,0.6);  pointer-events: none;}
-#dialog-text {  position: absolute;  top: 5%;  left: 5%;  right: 5%;  bottom: 15%;  font-size: 1.2vw;  line-height: 1.5;  font-size: clamp(12px, 1.2vw, 20px);  pointer-events: none;   z-index: 2;}
+#dialog-text {  position: absolute;  top: 5%;  left: 5%;  right: 5%;  bottom: 15%;  line-height: 1.5;  font-size: clamp(12px, 1.2vw, 20px);  pointer-events: none;   z-index: 2;}
 #dialog-next { position: absolute; bottom: 5%; right: 3%; font-size: 1.5vw; animation: blink 1s infinite; cursor: url('images/pointer.png') 2 2, pointer; z-index: 2; display: block;}
 
 /* 让选择项可点（视觉上还是用 dialog-text 里渲染） */
@@ -95,7 +94,6 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 
 /* 分类区容器 */
 .category {  display: none;  padding: 20px 40px; animation: fadeIn 0.5s ease forwards; box-sizing: border-box; }
-.category h1 {  text-align: center;  margin-bottom: 20px;  font-size: 28px;}
 
 /* 手机竖屏分类页：标题吸顶，整页上下滑 */
 @media (max-width: 768px) and (orientation: portrait) {
@@ -154,7 +152,30 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 
 /* Lightbox */
 #lightbox {position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000;}
-#lightbox img {max-width: 90%;max-height: 90%;border-radius: 8px;}
+#lightbox-content { display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh; }
+#lightbox-content img {max-width: 100%; max-height: 80vh; border-radius: 8px; width: auto; height: auto;}
+#artwork-info {
+  margin-top: 14px;
+  text-align: center;
+  color: white;
+  font-family: 'Zpix', monospace;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 10px 20px;
+  max-width: 80vw;
+}
+#artwork-title {
+  font-size: clamp(14px, 1.4vw, 20px);
+  font-weight: bold;
+  margin-bottom: 5px;
+  letter-spacing: 0.05em;
+}
+#artwork-meta {
+  font-size: clamp(11px, 1vw, 15px);
+  color: #ccc;
+  letter-spacing: 0.03em;
+}
 .close-lightbox,
 .prev-lightbox,
 .next-lightbox {position: absolute;color: white;font-size: 40px;font-weight: bold;cursor: pointer;transition: 0.3s;user-select: none;}
@@ -167,7 +188,7 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 
 /* 竖屏手机：lightbox 改为上下箭头 */
 @media (max-width: 768px) and (orientation: portrait) {
-  #lightbox img { max-width: 96vw; max-height: 80vh; }
+  #lightbox-content img { max-width: 96vw; max-height: 80vh; }
   /* 隐藏左右箭头 */
   .prev-lightbox, .next-lightbox { display: none; }
   /* 专用上下箭头 */
@@ -328,9 +349,9 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 }
 
 /* Lightbox 图片在任何屏幕都不超出视口 */
-#lightbox img {
+#lightbox-content img {
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: 80vh;
   width: auto;
   height: auto;
 }
@@ -586,7 +607,6 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
     <img data-src="works/mobrei/mobrei长篇/49.jpg" alt="同人作品2"><img data-src="works/mobrei/mobrei长篇/50.jpg" alt="同人作品2"><img data-src="works/mobrei/mobrei长篇/51.jpg" alt="同人作品2"> 
     <img data-src="works/mobrei/mobrei长篇/52.jpg" alt="同人作品2"><img data-src="works/mobrei/mobrei长篇/53.jpg" alt="同人作品2"> 
   </div>
-  </div>
 </div>
 
 <div id="folder6" class="folder" style="display:none;">
@@ -616,18 +636,69 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 
 <!-- 分类页：原创区 -->
 <div id="category3" class="category">
-  <div class="category-footer"data-key="originalArea"><h2>原创区</h2></div>
+  <div class="category-footer" data-key="originalArea"><h2>原创区</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
-      <img src="works/thumb5.jpg" alt="作品分类1" onclick="openFolder('folder7', 'category3')">
+      <img src="works/thumb6.jpg" alt="Fine Art" onclick="openSubCategory('category3a', 'category3')">
+      <h3 data-key="fineArt">美术创作</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/thumb4.jpg" alt="Digital Art" onclick="openSubCategory('category3b', 'category3')">
+      <h3 data-key="digitalArt">电子创作</h3>
+    </div>
+  </div>
+</div>
+
+<!-- 原创区子分类：Fine Art -->
+<div id="category3a" class="category" style="display:none;">
+  <div class="category-footer"><h2 data-key="fineArt">美术创作</h2></div>
+  <div class="gallery-grid">
+    <div class="thumb">
+      <img src="works/fine art/1.png" alt="意象爱" onclick="openFolder('folder10', 'category3a')">
+      <h3 data-key="imaginaryLove">意象爱（更新中）</h3>
+    </div>
+    <div class="thumb">
+      <img src="works/fine art/2.jpg" alt="其他" onclick="openFolder('folder11', 'category3a')">
+      <h3 data-key="fineArtOthers">其他</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Fine Art 子文件夹：意象爱 -->
+<div id="folder10" class="folder fine-art-folder" style="display:none;">
+  <div class="gallery-grid fine-art-grid">
+    <!-- 示例：给每张图加 data-title / data-date / data-medium / data-size -->
+    <div class="fine-art-item">
+      <img data-src="works/fine art/1.png" alt="作品1"
+           data-title="grapes_3" data-date="2026" data-medium="oil on canvas" data-size="22×22cm">
+    </div>
+  </div>
+</div>
+
+<!-- Fine Art 子文件夹：其他 -->
+<div id="folder11" class="folder fine-art-folder" style="display:none;">
+  <div class="gallery-grid fine-art-grid">
+    <div class="fine-art-item">
+      <img data-src="works/fine art/2.jpg" alt="其他作品1"
+           data-title="out of control" data-date="2025" data-medium="Etching" data-size="15×15cm">
+    </div>
+  </div>
+</div>
+
+<!-- 原创区子分类：Digital Art -->
+<div id="category3b" class="category" style="display:none;">
+  <div class="category-footer"><h2 data-key="digitalArt">电子创作</h2></div>
+  <div class="gallery-grid">
+    <div class="thumb">
+      <img src="works/thumb5.jpg" alt="MELAS角色设定" onclick="openFolder('folder7', 'category3b')">
       <h3 data-key="characterBook">MELAS-角色设定</h3>
     </div>
     <div class="thumb">
-      <img src="works/thumb4.jpg" alt="作品分类2" onclick="openFolder('folder8', 'category3')">
+      <img src="works/thumb4.jpg" alt="MELAS插画合集" onclick="openFolder('folder8', 'category3b')">
       <h3 data-key="illustrationBook">MELAS-插画合集</h3>
     </div>
     <div class="thumb">
-      <img src="works/oc/漫画/1.jpg" alt="作品分类3" onclick="openFolder('folder9', 'category3')">
+      <img src="works/oc/漫画/1.jpg" alt="MELAS漫画" onclick="openFolder('folder9', 'category3b')">
       <h3 data-key="manga">MELAS-漫画(连载中)</h3>
     </div>
   </div>
@@ -679,7 +750,13 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <span class="prev-lightbox">&#10094;</span>
   <span class="next-lightbox">&#10095;</span>
   <span class="prev-lightbox-v">&#8679;</span>
-  <img src="" alt="预览图">
+  <div id="lightbox-content">
+    <img src="" alt="预览图">
+    <div id="artwork-info" style="display:none;">
+      <div id="artwork-title"></div>
+      <div id="artwork-meta"></div>
+    </div>
+  </div>
   <span class="next-lightbox-v">&#8681;</span>
 </div>
 
@@ -735,16 +812,17 @@ const dialogNext = document.getElementById('dialog-next');
 const dialogNextHit = document.getElementById('dialog-next-hit');
 const dialogIcon = document.getElementById('dialog-icon');
 const gallery = document.getElementById("gallery");
-const categories = document.querySelectorAll(".category");
 const cards = document.querySelectorAll(".card");
 const lightbox = document.getElementById("lightbox");
-const lightboxImg = lightbox.querySelector("img");
+const lightboxImg = lightbox.querySelector("#lightbox-content img");
 const backBtn = document.getElementById("backBtn"); 
 
-let currentImages = [];  // 当前文件夹的所有图片
-let currentIndex = 0;
+let currentImages = [];  // lightbox 当前图片组
+let currentIndex = 0;    // lightbox 当前图片下标
+let choiceIndex = 0;     // 对话选项键盘导航下标
 let currentFolderId = null;
 let lastCategoryId = null;
+let navStack = []; // 多层分类导航历史
 const hoverSound = document.getElementById('hoverSound');
 const selectSound = document.getElementById('selectSound');
 hoverSound.volume = 0.6;
@@ -837,6 +915,20 @@ cards.forEach(card => {
 });
 
 /* =====================
+   打开子分类（category → 子category）
+===================== */
+function openSubCategory(subCategoryId, parentCategoryId) {
+  document.getElementById(parentCategoryId).style.display = "none";
+  document.getElementById(subCategoryId).style.display = "block";
+  navStack.push(parentCategoryId);
+  lastCategoryId = subCategoryId;
+  currentFolderId = null;
+  backBtn.style.display = "block";
+  document.body.style.overflow = "auto";
+  document.documentElement.style.overflow = "auto";
+}
+
+/* =====================
    打开文件夹
 ===================== */
 function openFolder(folderId, categoryId) {
@@ -867,17 +959,24 @@ backBtn.addEventListener("click", () => {
   }
 
   if (currentFolderId && lastCategoryId) {
-    // 在文件夹 → 返回分类
+    // 从文件夹返回上一层分类
     document.getElementById(currentFolderId).style.display = "none";
     document.getElementById(lastCategoryId).style.display = "block";
-    currentFolderId = null; 
+    currentFolderId = null;
   } else if (lastCategoryId) {
-    // 在分类 → 返回首页
     document.getElementById(lastCategoryId).style.display = "none";
-    gallery.style.display = isPortraitMobile() ? "flex" : "flex";
-    lastCategoryId = null;
-    backBtn.style.display = "none";
-    setHomeOverflow();
+    if (navStack.length > 0) {
+      // 从子分类返回父分类
+      const parentId = navStack.pop();
+      document.getElementById(parentId).style.display = "block";
+      lastCategoryId = parentId;
+    } else {
+      // 返回主画廊
+      gallery.style.display = "flex";
+      lastCategoryId = null;
+      backBtn.style.display = "none";
+      setHomeOverflow();
+    }
   }
 });
 /* =====================
@@ -898,8 +997,40 @@ document.querySelectorAll(".folder .gallery-grid img").forEach(img => {
 
     lightboxImg.src = img.src || img.dataset.src;
     lightbox.style.display = "flex";
+    updateArtworkInfo(img);
   });
 });
+
+/* Fine Art 文件夹（.fine-art-folder）里的作品点击 */
+document.addEventListener("click", e => {
+  const fineImg = e.target.closest(".fine-art-folder .fine-art-grid img");
+  if (!fineImg) return;
+  const grid = fineImg.closest(".fine-art-grid");
+  currentImages = Array.from(grid.querySelectorAll("img"));
+  currentIndex = currentImages.indexOf(fineImg);
+  lightboxImg.src = fineImg.src || fineImg.dataset.src;
+  lightbox.style.display = "flex";
+  updateArtworkInfo(fineImg);
+});
+
+function updateArtworkInfo(img) {
+  const artworkInfo = document.getElementById("artwork-info");
+  const artworkTitle = document.getElementById("artwork-title");
+  const artworkMeta = document.getElementById("artwork-meta");
+  const title = img.dataset.title;
+  const date = img.dataset.date;
+  const medium = img.dataset.medium;
+  const size = img.dataset.size;
+
+  if (title || date || medium || size) {
+    artworkTitle.textContent = title || "";
+    const metaParts = [date, medium, size].filter(Boolean);
+    artworkMeta.textContent = metaParts.join("  ·  ");
+    artworkInfo.style.display = "block";
+  } else {
+    artworkInfo.style.display = "none";
+  }
+}
 
 /* =====================
    Lightbox 控制
@@ -909,6 +1040,7 @@ function showImageAt(index) {
     currentIndex = (index + currentImages.length) % currentImages.length;
     const ci = currentImages[currentIndex];
     lightboxImg.src = ci.src || ci.dataset.src;
+    updateArtworkInfo(ci);
   }
 }
 
@@ -979,7 +1111,7 @@ function playClick() {
   } catch (e) {} 
 }
 
-/* === Gallery 页面内联翻译（补充 lang.js 未覆盖的 key） === */
+/* === 页面翻译表 === */
 const galleryTranslations = {
   zh: {
     backToIndex:      "返回大脑皮层",
@@ -995,7 +1127,12 @@ const galleryTranslations = {
     mp100:            "灵能百分百-茂灵",
     aot:              "进击的巨人-老兵组",
     characterBook:    "MELAS-角色设定",
-    illustrationBook: "MEALS-插画合集"
+    illustrationBook: "MELAS-插画合集",
+    fineArt:          "美术创作",
+    digitalArt:       "电子创作",
+    imaginaryLove:    "意象爱（更新中）",
+    fineArtOthers:    "其他",
+    manga:            "MELAS-漫画(连载中)"
   },
   en: {
     backToIndex:      "Back to Cerebral Cortex",
@@ -1011,7 +1148,12 @@ const galleryTranslations = {
     mp100:            "Mob Psycho 100 - MobRei",
     aot:              "Attack on Titan - Veterans",
     characterBook:    "MELAS-Character Design",
-    illustrationBook: "MELAS-Illustration Collection"
+    illustrationBook: "MELAS-Illustration Collection",
+    fineArt:          "Fine Art",
+    digitalArt:       "Digital Art",
+    imaginaryLove:    "Imaginary Love (Ongoing)",
+    fineArtOthers:    "Others",
+    manga:            "MELAS-Manga (ongoing)"
   }
 };
 
@@ -1036,21 +1178,8 @@ function applyGalleryTranslations() {
 /* 页面加载时应用一次 */
 window.addEventListener('load', applyGalleryTranslations);
 
-/* 监听语言切换按钮，切换后立即重新应用 */
-document.addEventListener('DOMContentLoaded', () => {
-  const langToggle = document.getElementById('language-toggle');
-  if (langToggle) {
-    langToggle.addEventListener('click', () => {
-      // 切换 currentLang
-      const cur = (typeof currentLang !== 'undefined' ? currentLang : null)
-               || localStorage.getItem('language') || 'zh';
-      const next = cur === 'zh' ? 'en' : 'zh';
-      try { localStorage.setItem('language', next); } catch(e) {}
-      if (typeof window.currentLang !== 'undefined') window.currentLang = next;
-      applyGalleryTranslations();
-    });
-  }
-});
+/* lang.js 的 updateLanguage() 执行完后会派发此事件，gallery 跟着同步 */
+window.addEventListener('langchange', applyGalleryTranslations);
 const playlist = [
   "sounds/作品集bgm/adventure.mp3",
   "sounds/作品集bgm/目覚めの村.mp3",
@@ -1274,12 +1403,11 @@ let isTyping = false;
 let typingTimer = null;
 let currentBranch = null; 
 let branchStep = 0;
-let debugForceFirstDialog = false; //**********************
-let firstTimeDialog = debugForceFirstDialog || !localStorage.getItem("galleryDialogShown");
+let firstTimeDialog = !localStorage.getItem("galleryDialogShown");
 // 音乐引导只在「第一次对话」时触发，之后永远不再自动开启
 let bgmUnlockDone = localStorage.getItem("galleryBgmUnlocked") === "true";
 let answerSound = new Audio("./sounds/answer.mp3"); 
-let changeSound = new Audio("./sounds/change.wav"); 
+let changeSound = new Audio("./sounds/change.mp3"); 
 answerSound.volume = 0.5;
 changeSound.volume = 0.5;
 
@@ -1414,9 +1542,9 @@ function startChoice(){
         <div class="choice" data-type="none">${currentLang==="zh"?"没事":"Nothing"}</div>
       </div>`;
     const choices = document.querySelectorAll("#choice-list .choice");
-    currentIndex = 0;
+    choiceIndex = 0;
     choices.forEach(c => { c.dataset.typeLabel = c.textContent.trim(); });
-    updateChoiceHighlight(currentIndex, false);
+    updateChoiceHighlight(choiceIndex, false);
 
     choices.forEach(c => {
       c.addEventListener("click", () => {
@@ -1456,11 +1584,11 @@ document.addEventListener("keydown", function(e){
   if(choosing){
     const choices = document.querySelectorAll("#choice-list .choice");
     if(!choices.length) return;
-    if(e.key==="ArrowUp"){ currentIndex=(currentIndex-1+choices.length)%choices.length; updateChoiceHighlight(currentIndex); e.preventDefault(); }
-    if(e.key==="ArrowDown"){ currentIndex=(currentIndex+1)%choices.length; updateChoiceHighlight(currentIndex); e.preventDefault(); }
+    if(e.key==="ArrowUp"){ choiceIndex=(choiceIndex-1+choices.length)%choices.length; updateChoiceHighlight(choiceIndex); e.preventDefault(); }
+    if(e.key==="ArrowDown"){ choiceIndex=(choiceIndex+1)%choices.length; updateChoiceHighlight(choiceIndex); e.preventDefault(); }
     if(e.key==="Enter"){ 
       if(!audioUnlocked) unlockAudio(); try { answerSound.currentTime=0; answerSound.play(); } catch(e){}
-      if(currentBranch){ choices[currentIndex].click(); } else { chooseBranch(choices[currentIndex].dataset.type); }
+      if(currentBranch){ choices[choiceIndex].click(); } else { chooseBranch(choices[choiceIndex].dataset.type); }
       e.preventDefault();
     }
   } else {
@@ -1495,8 +1623,8 @@ function showBranchOptions(){
   dialogText.innerHTML += choiceHtml;
 
   const choices = document.querySelectorAll("#choice-list .choice");
-  currentIndex=0; choices.forEach(c=>{c.dataset.typeLabel=c.textContent;});
-  updateChoiceHighlight(currentIndex);
+  choiceIndex=0; choices.forEach(c=>{c.dataset.typeLabel=c.textContent;});
+  updateChoiceHighlight(choiceIndex);
 
   choices.forEach(c=>{
     c.addEventListener("click", ()=>{
