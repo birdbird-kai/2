@@ -83,7 +83,7 @@ function updateLanguage() {
         : "url('images/language-en.png')";
   }
 
-  // 通知 gallery 页面同步翻译（解决 backToIndex 延迟问题）
+  // 通知 gallery 页面同步翻译（applyGalleryTranslations 监听此事件）
   window.dispatchEvent(new Event('langchange'));
 }
 
