@@ -27,6 +27,10 @@ const translations = {
     characterBook: "MELAS-角色设定",
     illustrationBook: "MELAS-插画",
     manga: "MELAS-漫画（连载中）",
+    fineArt: "美术创作",
+    digitalArt: "电子创作",
+    imaginaryLove: "意象爱（更新中）",
+    fineArtOthers: "其他",
   },
 
   en: {
@@ -54,6 +58,10 @@ const translations = {
     characterBook: "MELAS-Character Design",
     illustrationBook: "MELAS-Illustration",
     manga: "MELAS-Comic(Ongoing)",
+    fineArt: "Fine Art",
+    digitalArt: "Digital Art",
+    imaginaryLove: "Imaginary Love (Ongoing)",
+    fineArtOthers: "Others",
   }
 };
 
@@ -74,6 +82,9 @@ function updateLanguage() {
         ? "url('images/language-zh.png')"
         : "url('images/language-en.png')";
   }
+
+  // 通知 gallery 页面同步翻译（解决 backToIndex 延迟问题）
+  window.dispatchEvent(new Event('langchange'));
 }
 
 /* ========== 切换语言 ========== */
