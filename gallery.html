@@ -665,23 +665,22 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 </div>
 
 <!-- Fine Art 子文件夹：意象爱 -->
-<div id="folder10" class="folder fine-art-folder" style="display:none;">
-  <div class="gallery-grid fine-art-grid">
-    <!-- 示例：给每张图加 data-title / data-date / data-medium / data-size -->
-    <div class="fine-art-item">
-      <img data-src="works/fine art/1.png" alt="作品1"
-           data-title="grapes_3" data-date="2026" data-medium="oil on canvas" data-size="22×22cm">
-    </div>
+<div id="folder10" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img data-src="works/fine art/1.png" alt="grapes_3"
+         data-title="grapes_3" data-date="2026" data-medium="oil on canvas" data-size="22×22cm">
   </div>
 </div>
 
 <!-- Fine Art 子文件夹：其他 -->
-<div id="folder11" class="folder fine-art-folder" style="display:none;">
-  <div class="gallery-grid fine-art-grid">
-    <div class="fine-art-item">
-      <img data-src="works/fine art/2.jpg" alt="其他作品1"
-           data-title="out of control" data-date="2025" data-medium="Etching" data-size="15×15cm">
-    </div>
+<div id="folder11" class="folder" style="display:none;">
+  <div class="gallery-grid">
+    <img data-src="works/fine art/2.jpg" alt="out of control"
+         data-title="out of control" data-date="2025" data-medium="Etching" data-size="15×15cm">
+    <img data-src="works/fine art/4.jpg" alt="Das Sein zum Tode"
+         data-title="Das Sein zum Tode" data-date="2026" data-medium="oil on canvas" data-size="29.7×42cm">
+    <img data-src="works/fine art/3.jpg" alt="How life works"
+         data-title="How life works" data-date="2026" data-medium="oil on canvas" data-size="29.7×42cm">
   </div>
 </div>
 
@@ -1002,17 +1001,8 @@ document.querySelectorAll(".folder .gallery-grid img").forEach(img => {
   });
 });
 
-/* Fine Art 文件夹（.fine-art-folder）里的作品点击 */
-document.addEventListener("click", e => {
-  const fineImg = e.target.closest(".fine-art-folder .fine-art-grid img");
-  if (!fineImg) return;
-  const grid = fineImg.closest(".fine-art-grid");
-  currentImages = Array.from(grid.querySelectorAll("img"));
-  currentIndex = currentImages.indexOf(fineImg);
-  lightboxImg.src = fineImg.src || fineImg.dataset.src;
-  lightbox.style.display = "flex";
-  updateArtworkInfo(fineImg);
-});
+
+
 
 function updateArtworkInfo(img) {
   const artworkInfo = document.getElementById("artwork-info");
