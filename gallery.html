@@ -542,7 +542,6 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
     <img data-src="works/彩色/b5.jpg" alt="委托作品5">
     <img data-src="works/彩色/b6.jpg" alt="委托作品6">
     <img data-src="works/彩色/b7.jpg" alt="委托作品7">
-    <img data-src="works/彩色/b8.jpg" alt="委托作品8">
   </div>
 </div>
 
@@ -579,9 +578,9 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="gallery-grid">
     <img data-src="works/thumb3.jpg" alt="同人作品1">
     <img data-src="works/同人/mouthwashing/1.jpg" alt="同人作品1"><img data-src="works/同人/mouthwashing/2.jpg" alt="同人作品1"><img data-src="works/同人/mouthwashing/3.jpg" alt="同人作品1">
+    <img data-src="works/同人/mouthwashing/4.jpg" alt="同人作品1">
     <img data-src="works/同人/毒师/1.jpg" alt="同人作品1"> <img data-src="works/同人/毒师/2.jpg" alt="同人作品1"><img data-src="works/同人/毒师/3.jpg" alt="同人作品1">
     <img data-src="works/同人/毒师/4.jpg" alt="同人作品1"><img data-src="works/同人/毒师/5.jpg" alt="同人作品1"><img data-src="works/同人/毒师/6.jpg" alt="同人作品1">
-    <img data-src="works/同人/毒师/7.jpg" alt="同人作品1"><img data-src="works/同人/毒师/8.jpg" alt="同人作品1"><img data-src="works/同人/毒师/9.jpg" alt="同人作品1">
     <img data-src="works/同人/UT/1.png" alt="同人作品1"><img data-src="works/同人/UT/2.jpg" alt="同人作品1"><img data-src="works/同人/UT/3.jpg" alt="同人作品1">  
   </div>
 </div>
@@ -639,56 +638,15 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="category-footer" data-key="originalArea"><h2>原创区</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
-      <img src="works/thumb6.jpg" alt="Fine Art" onclick="openSubCategory('category3a', 'category3')">
-      <h3 data-key="fineArt">美术创作</h3>
+      <img src="works/thumb4.jpg" alt=" Art" onclick="openSubCategory('category3b', 'category3')">
+      <h3 data-key="digitalArt">MELAS</h3>
     </div>
-    <div class="thumb">
-      <img src="works/thumb4.jpg" alt="Digital Art" onclick="openSubCategory('category3b', 'category3')">
-      <h3 data-key="digitalArt">电子创作</h3>
-    </div>
-  </div>
-</div>
-
-<!-- 原创区子分类：Fine Art -->
-<div id="category3a" class="category" style="display:none;">
-  <div class="category-footer"><h2 data-key="fineArt">美术创作</h2></div>
-  <div class="gallery-grid">
-    <div class="thumb">
-      <img src="works/fine art/1.png" alt="意象爱" onclick="openFolder('folder10', 'category3a')">
-      <h3 data-key="imaginaryLove">意象爱（更新中）</h3>
-    </div>
-    <div class="thumb">
-      <img src="works/fine art/2.jpg" alt="其他" onclick="openFolder('folder11', 'category3a')">
-      <h3 data-key="fineArtOthers">其他</h3>
-    </div>
-  </div>
-</div>
-
-<!-- Fine Art 子文件夹：意象爱 -->
-<div id="folder10" class="folder" style="display:none;">
-  <div class="gallery-grid">
-    <img data-src="works/fine art/1.png" alt="grapes_3"
-         data-title="grapes_3" data-date="2026" data-medium="oil on canvas" data-size="22×22cm">
-  </div>
-</div>
-
-<!-- Fine Art 子文件夹：其他 -->
-<div id="folder11" class="folder" style="display:none;">
-  <div class="gallery-grid">
-    <img data-src="works/fine art/2.jpg" alt="out of control"
-         data-title="out of control" data-date="2025" data-medium="Etching" data-size="15×15cm">
-    <img data-src="works/fine art/4.jpg" alt="Das Sein zum Tode"
-         data-title="Das Sein zum Tode" data-date="2026" data-medium="oil on canvas" data-size="29.7×42cm">
-    <img data-src="works/fine art/3.jpg" alt="How life works"
-         data-title="How life works" data-date="2026" data-medium="oil on canvas" data-size="29.7×42cm">
-    <img data-src="works/fine art/5.jpeg" alt="How life works"
-         data-title="Connection" data-date="2025" data-medium="oil on canvas" data-size="60×110cm">   
   </div>
 </div>
 
 <!-- 原创区子分类：Digital Art -->
 <div id="category3b" class="category" style="display:none;">
-  <div class="category-footer"><h2 data-key="digitalArt">电子创作</h2></div>
+  <div class="category-footer"><h2 data-key="digitalArt">MELAS</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
       <img src="works/thumb5.jpg" alt="MELAS角色设定" onclick="openFolder('folder7', 'category3b')">
@@ -1121,10 +1079,7 @@ const galleryTranslations = {
     aot:              "进击的巨人-老兵组",
     characterBook:    "MELAS-角色设定",
     illustrationBook: "MELAS-插画合集",
-    fineArt:          "美术创作",
-    digitalArt:       "电子创作",
-    imaginaryLove:    "意象爱（更新中）",
-    fineArtOthers:    "其他",
+    digitalArt:       "MELAS",
     manga:            "MELAS-漫画(连载中)"
   },
   en: {
@@ -1142,10 +1097,7 @@ const galleryTranslations = {
     aot:              "Attack on Titan - Veterans",
     characterBook:    "MELAS-Character Design",
     illustrationBook: "MELAS-Illustration Collection",
-    fineArt:          "Fine Art",
-    digitalArt:       "Digital Art",
-    imaginaryLove:    "Imaginary Love (Ongoing)",
-    fineArtOthers:    "Others",
+    digitalArt:       "MELAS",
     manga:            "MELAS-Manga (ongoing)"
   }
 };
