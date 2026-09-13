@@ -145,6 +145,27 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
 /* 分类页底部说明 */
 .category-footer { margin-top: 20px; text-align: center; font-size: 18px; color: #ccc;}
 
+/* === 委托明细表格 === */
+.cd-wrap { max-width: 900px; margin: 100px auto 60px; padding: 0 24px 40px; color: #fff; font-family:'Zpix', monospace; box-sizing: border-box; }
+.cd-section { margin-bottom: 40px; }
+.cd-heading { text-align:center; font-size: 22px; letter-spacing:2px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.4); padding-bottom: 10px;}
+.cd-row { display:flex; justify-content:center; align-items:baseline; gap: 18px; flex-wrap:wrap; font-size:16px; margin: 12px 0;}
+.cd-name { min-width: 80px; text-align:right; opacity:.95;}
+.cd-sep { opacity:.5; }
+.cd-note-list { list-style: none; padding:0; margin: 30px auto 0; max-width: 640px; font-size:13px; line-height:1.9; opacity:.8;}
+.cd-note-list li::before { content:"* "; }
+.cd-process-block { text-align:center; font-size:13px; line-height:1.8; margin-bottom: 26px;}
+.cd-process-title { font-size:15px; margin-bottom:8px; opacity:.9;}
+.cd-flow { opacity:.8; }
+.cd-payment { text-align:center; font-size:16px; margin-top: 6px;}
+@media (max-width: 768px) {
+  .cd-wrap { margin-top: 70px; }
+  .cd-row { font-size: 14px; gap: 10px; }
+  .cd-name { min-width: 64px; }
+  .cd-heading { font-size: 18px; }
+  .cd-process-block, .cd-note-list { font-size: 12px; }
+}
+
 /* 返回按钮 */
 #backBtn { position: fixed; top: 20px; right: 84px; padding: 6px 14px; font-size: 14px;color: white;background: transparent;border: 2px solid white;
   border-radius: 6px;cursor: pointer;z-index: 1000;display: none; transition: all 0.2s ease;}
@@ -526,10 +547,6 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
     <img data-src="works/黑白/w9.jpg" alt="委托作品9">
     <img data-src="works/黑白/w10.jpg" alt="委托作品10">
     <img data-src="works/黑白/w11.jpg" alt="委托作品11">
-    <img data-src="works/黑白/w12.jpg" alt="委托作品12">
-    <img data-src="works/黑白/w13.jpg" alt="委托作品13">
-    <img data-src="works/黑白/w14.jpg" alt="委托作品14">
-    <img data-src="works/黑白/w15.jpg" alt="委托作品15">
   </div>
 </div>
 
@@ -542,17 +559,11 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
     <img data-src="works/彩色/b5.jpg" alt="委托作品5">
     <img data-src="works/彩色/b6.jpg" alt="委托作品6">
     <img data-src="works/彩色/b7.jpg" alt="委托作品7">
-    <img data-src="works/彩色/b8.jpg" alt="委托作品8">
   </div>
 </div>
 
 <div id="folder3" class="folder" style="display:none;">
-  <div class="gallery-grid">
-    <img data-src="works/中.png" alt="委托明细1">
-    <img data-src="works/英.png" alt="委托明细2">
-    <img data-src="works/中2.png" alt="委托明细1">
-    <img data-src="works/英2.png" alt="委托明细2">
-  </div>
+  <div id="commission-details" class="cd-wrap"></div>
 </div>
 
 <!-- 分类页：同人区 -->
@@ -579,9 +590,9 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="gallery-grid">
     <img data-src="works/thumb3.jpg" alt="同人作品1">
     <img data-src="works/同人/mouthwashing/1.jpg" alt="同人作品1"><img data-src="works/同人/mouthwashing/2.jpg" alt="同人作品1"><img data-src="works/同人/mouthwashing/3.jpg" alt="同人作品1">
+    <img data-src="works/同人/mouthwashing/4.jpg" alt="同人作品1">
     <img data-src="works/同人/毒师/1.jpg" alt="同人作品1"> <img data-src="works/同人/毒师/2.jpg" alt="同人作品1"><img data-src="works/同人/毒师/3.jpg" alt="同人作品1">
     <img data-src="works/同人/毒师/4.jpg" alt="同人作品1"><img data-src="works/同人/毒师/5.jpg" alt="同人作品1"><img data-src="works/同人/毒师/6.jpg" alt="同人作品1">
-    <img data-src="works/同人/毒师/7.jpg" alt="同人作品1"><img data-src="works/同人/毒师/8.jpg" alt="同人作品1"><img data-src="works/同人/毒师/9.jpg" alt="同人作品1">
     <img data-src="works/同人/UT/1.png" alt="同人作品1"><img data-src="works/同人/UT/2.jpg" alt="同人作品1"><img data-src="works/同人/UT/3.jpg" alt="同人作品1">  
   </div>
 </div>
@@ -639,56 +650,15 @@ transition: filter 0.3s, z-index 0.3s; margin: 0 -110px;   box-shadow: none;   f
   <div class="category-footer" data-key="originalArea"><h2>原创区</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
-      <img src="works/thumb6.jpg" alt="Fine Art" onclick="openSubCategory('category3a', 'category3')">
-      <h3 data-key="fineArt">美术创作</h3>
+      <img src="works/thumb4.jpg" alt=" Art" onclick="openSubCategory('category3b', 'category3')">
+      <h3 data-key="digitalArt">MELAS</h3>
     </div>
-    <div class="thumb">
-      <img src="works/thumb4.jpg" alt="Digital Art" onclick="openSubCategory('category3b', 'category3')">
-      <h3 data-key="digitalArt">电子创作</h3>
-    </div>
-  </div>
-</div>
-
-<!-- 原创区子分类：Fine Art -->
-<div id="category3a" class="category" style="display:none;">
-  <div class="category-footer"><h2 data-key="fineArt">美术创作</h2></div>
-  <div class="gallery-grid">
-    <div class="thumb">
-      <img src="works/fine art/1.png" alt="意象爱" onclick="openFolder('folder10', 'category3a')">
-      <h3 data-key="imaginaryLove">意象爱（更新中）</h3>
-    </div>
-    <div class="thumb">
-      <img src="works/fine art/2.jpg" alt="其他" onclick="openFolder('folder11', 'category3a')">
-      <h3 data-key="fineArtOthers">其他</h3>
-    </div>
-  </div>
-</div>
-
-<!-- Fine Art 子文件夹：意象爱 -->
-<div id="folder10" class="folder" style="display:none;">
-  <div class="gallery-grid">
-    <img data-src="works/fine art/1.png" alt="grapes_3"
-         data-title="grapes_3" data-date="2026" data-medium="oil on canvas" data-size="22×22cm">
-  </div>
-</div>
-
-<!-- Fine Art 子文件夹：其他 -->
-<div id="folder11" class="folder" style="display:none;">
-  <div class="gallery-grid">
-    <img data-src="works/fine art/2.jpg" alt="out of control"
-         data-title="out of control" data-date="2025" data-medium="Etching" data-size="15×15cm">
-    <img data-src="works/fine art/4.jpg" alt="Das Sein zum Tode"
-         data-title="Das Sein zum Tode" data-date="2026" data-medium="oil on canvas" data-size="29.7×42cm">
-    <img data-src="works/fine art/3.jpg" alt="How life works"
-         data-title="How life works" data-date="2026" data-medium="oil on canvas" data-size="29.7×42cm">
-    <img data-src="works/fine art/5.jpeg" alt="How life works"
-         data-title="Connection" data-date="2025" data-medium="oil on canvas" data-size="60×110cm">   
   </div>
 </div>
 
 <!-- 原创区子分类：Digital Art -->
 <div id="category3b" class="category" style="display:none;">
-  <div class="category-footer"><h2 data-key="digitalArt">电子创作</h2></div>
+  <div class="category-footer"><h2 data-key="digitalArt">MELAS</h2></div>
   <div class="gallery-grid">
     <div class="thumb">
       <img src="works/thumb5.jpg" alt="MELAS角色设定" onclick="openFolder('folder7', 'category3b')">
@@ -1121,10 +1091,7 @@ const galleryTranslations = {
     aot:              "进击的巨人-老兵组",
     characterBook:    "MELAS-角色设定",
     illustrationBook: "MELAS-插画合集",
-    fineArt:          "美术创作",
-    digitalArt:       "电子创作",
-    imaginaryLove:    "意象爱（更新中）",
-    fineArtOthers:    "其他",
+    digitalArt:       "MELAS",
     manga:            "MELAS-漫画(连载中)"
   },
   en: {
@@ -1142,10 +1109,7 @@ const galleryTranslations = {
     aot:              "Attack on Titan - Veterans",
     characterBook:    "MELAS-Character Design",
     illustrationBook: "MELAS-Illustration Collection",
-    fineArt:          "Fine Art",
-    digitalArt:       "Digital Art",
-    imaginaryLove:    "Imaginary Love (Ongoing)",
-    fineArtOthers:    "Others",
+    digitalArt:       "MELAS",
     manga:            "MELAS-Manga (ongoing)"
   }
 };
@@ -1173,6 +1137,110 @@ window.addEventListener('load', applyGalleryTranslations);
 
 /* lang.js 的 updateLanguage() 执行完后会派发此事件，gallery 跟着同步 */
 window.addEventListener('langchange', applyGalleryTranslations);
+
+/* =====================
+   委托明细价目表（代码生成，改这里的数据即可，不用再重画图）
+===================== */
+const commissionPricing = {
+  zh: {
+    bwTitle: "黑白",
+    items: [
+      { name: "胸像", single: "RM30", double: "RM60" },
+      { name: "半身", single: "RM35", double: "RM70" },
+      { name: "全身", single: "RM50", double: "RM100" },
+      { name: "Q版",  single: "RM15", double: "RM25" },
+      // 👇 以后要加新项目，复制上面一行改成这样加在下面即可：
+      // { name: "新项目", single: "RM??", double: "RM??" },
+    ],
+    colorTitle: "全彩",
+    colorNote: "黑白价 × 2",
+    notes: [
+      "价格基本按人数相乘",
+      "增加细节/场景视情况提升价格",
+      "也欢迎自带价 / 开发新业务！"
+    ],
+    processTitle: "约稿流程",
+    process: [
+      { title: "黑白稿（2-3天）", flow: "需求 → 草稿确认 → 不定时进度汇报（可改） → 成图（细节可改） → 付款 → Gmail发稿件" },
+      { title: "上色稿（4-7天）", flow: "需求 → 草稿/底色确认 → 线稿进度汇报（可改） → 线稿完成（细节可改） → 上色进度汇报 → 成图 → 付款 → Gmail发稿件" }
+    ],
+    paymentTitle: "付款方式",
+    payment: "TNG电子钱包 / 银行转账 / PayPal"
+  },
+  en: {
+    bwTitle: "Black & White",
+    items: [
+      { name: "Bust", single: "RM30", double: "RM60" },
+      { name: "Half body", single: "RM35", double: "RM70" },
+      { name: "Full body", single: "RM40", double: "RM80" },
+      { name: "Chibi", single: "RM15", double: "RM25" },
+    ],
+    colorTitle: "Colored",
+    colorNote: "Black & White price × 2",
+    notes: [
+      "Prices scale with number of characters",
+      "Extra details / complex scenes may increase price",
+      "Open to new commission types / ideas!"
+    ],
+    processTitle: "Process",
+    process: [
+      { title: "Black & White (2-3 days)", flow: "Request → Draft confirmation → Progress updates (revisions allowed) → Final artwork (detail revisions allowed) → Payment → File sent via Gmail" },
+      { title: "Colored (4-7 days)", flow: "Request → Draft / base color confirmation → Lineart progress updates (revisions allowed) → Lineart completed (detail revisions allowed) → Coloring progress updates → Final artwork → Payment → File sent via Gmail" }
+    ],
+    paymentTitle: "Payment Methods",
+    payment: "TNG eWallet / Bank Transfer / PayPal"
+  }
+};
+
+function renderCommissionDetails() {
+  const container = document.getElementById('commission-details');
+  if (!container) return;
+  const lang = (typeof currentLang !== 'undefined' ? currentLang : null)
+            || (typeof window.currentLang !== 'undefined' ? window.currentLang : null)
+            || localStorage.getItem('language') || 'zh';
+  const d = commissionPricing[lang] || commissionPricing.zh;
+  const singleLabel = lang === 'zh' ? '单人' : 'Single';
+  const doubleLabel = lang === 'zh' ? '双人' : 'Double';
+
+  const itemsHtml = d.items.map(it => `
+    <div class="cd-row">
+      <span class="cd-name">${it.name}</span>
+      <span>${singleLabel} ${it.single}</span>
+      <span class="cd-sep">|</span>
+      <span>${doubleLabel} ${it.double}</span>
+    </div>`).join('');
+
+  const processHtml = d.process.map(p => `
+    <div class="cd-process-block">
+      <div class="cd-process-title">${p.title}</div>
+      <div class="cd-flow">${p.flow}</div>
+    </div>`).join('');
+
+  const notesHtml = d.notes.map(n => `<li>${n}</li>`).join('');
+
+  container.innerHTML = `
+    <div class="cd-section">
+      <div class="cd-heading">${d.bwTitle}</div>
+      ${itemsHtml}
+    </div>
+    <div class="cd-section">
+      <div class="cd-heading">${d.colorTitle}</div>
+      <div class="cd-row">${d.colorNote}</div>
+    </div>
+    <ul class="cd-note-list">${notesHtml}</ul>
+    <div class="cd-section">
+      <div class="cd-heading">${d.processTitle}</div>
+      ${processHtml}
+    </div>
+    <div class="cd-section">
+      <div class="cd-heading">${d.paymentTitle}</div>
+      <div class="cd-payment">${d.payment}</div>
+    </div>`;
+}
+
+window.addEventListener('load', renderCommissionDetails);
+window.addEventListener('langchange', renderCommissionDetails);
+
 const playlist = [
   "sounds/作品集bgm/adventure.mp3",
   "sounds/作品集bgm/目覚めの村.mp3",
