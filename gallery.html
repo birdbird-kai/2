@@ -10,7 +10,15 @@
 @font-face {  font-family: 'Zpix';  src: url('zpix.ttf') format('truetype');}
 
 /* === 页面全局 === */
-html, body {margin: 0;  padding: 0;  width: 100%;  height: 100%;  background: black;  font-family: 'Zpix', monospace;  cursor: url('images/pointer2.png') 4 4, auto;  overflow: hidden;}
+html, body {margin: 0;  padding: 0;  width: 100%;  height: 100%;  background: black;  font-family: 'Zpix', monospace;  cursor: url('images/pointer2.png') 4 4, auto;  overflow: hidden;
+  scrollbar-width: none; /* Firefox：隐藏滚动条 */
+  -ms-overflow-style: none; /* 旧版 Edge/IE */
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent; /* Chrome/Safari：透明且不占空间 */
+}
 
 /* === 左右边框 === */
 #left-border, #right-border {  position: fixed;  top: 0;   bottom: 0;  width: 64px;  background-repeat: repeat-y;  background-size: 64px auto;  z-index: 5;}
